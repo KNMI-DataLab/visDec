@@ -15,3 +15,14 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// ImageSummary
+RcppExport SEXP ImageSummary(const std::string filename);
+RcppExport SEXP visDec_ImageSummary(SEXP filenameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const std::string >::type filename(filenameSEXP);
+    __result = Rcpp::wrap(ImageSummary(filename));
+    return __result;
+END_RCPP
+}

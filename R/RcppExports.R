@@ -11,3 +11,8 @@ PointAnalyser <- function(filename) {
     invisible(.Call('visDec_PointAnalyser', PACKAGE = 'visDec', filename))
 }
 
+#' @export
+ImageSummary <- function(filename) {
+    .Call('visDec_ImageSummary', PACKAGE = 'visDec', filename)
+}
+

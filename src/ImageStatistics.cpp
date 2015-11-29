@@ -26,3 +26,13 @@ void PointAnalyser(const std::string filename) {
     }
   }
 }
+
+//' @export
+// [[Rcpp::export]]
+RcppExport SEXP ImageSummary(const std::string filename) {
+  CImg<unsigned char> image(filename.c_str());
+  List ret;
+  ret["mean"] = image.mean();
+  ret["variance"] = image.variance();
+  return ret;
+}
