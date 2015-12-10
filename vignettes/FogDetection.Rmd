@@ -28,3 +28,18 @@ ggplot(imageSummary, aes(x = datetime, y = sqrt(var)/mean)) + geom_line()
 #ggplot(imageSummary[datetime > "2015-10-09" & datetime <= "2015-10-10"], aes(x = datetime, y = mean)) + geom_line()
 ```
 
+```{r, fig.show='hold'}
+sensor <- data.table(read.table("../inst/extdata/Sensor/MOR_DeBilt_201510.txt", header=TRUE))
+fn <- function(x) {
+  if (x < 10000) paste("00", x, sep="")
+  else if (x < 100000) paste("0", x, sep="")
+  else paste(x)
+}
+newTime <- sensor[, fn(hhmmss), by = .(yyyymmhh, hhmmss)]$V1
+sensor[, hhmmss := newTime]
+newDateTime <- as.POSIXct(sensor[, paste(yyyymmhh, hhmmss)], format="%Y%m%d %H%M%S")
+sensor[, dateTime := newDateTime]
+sensor[, yyyymmhh := NULL]
+sensor[, hhmmss := NULL]
+ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"], aes(x = dateTime, y = FS261)) + geom_line()
+```
