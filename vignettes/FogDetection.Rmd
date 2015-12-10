@@ -41,5 +41,7 @@ newDateTime <- as.POSIXct(sensor[, paste(yyyymmhh, hhmmss)], format="%Y%m%d %H%M
 sensor[, dateTime := newDateTime]
 sensor[, yyyymmhh := NULL]
 sensor[, hhmmss := NULL]
-ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"], aes(x = dateTime, y = FS261)) + geom_line()
+ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"], aes(x = dateTime, y = FS261/mean(FS261))) + geom_line() + 
+  geom_line(aes(x = datetime, y = var/mean(var)), data=imageSummary, col = "red")
+#ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"], aes(x = dateTime, y = FS261)) + geom_line()
 ```
