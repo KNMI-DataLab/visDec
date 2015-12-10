@@ -12,7 +12,7 @@ ExtractBasicImageStatistics(fullFilename, pattern = "na*me_yyyymmdd_hhmm.jpg")
 \item{pattern}{(to extract name, date, and time)}
 }
 \value{
-vector of name, date, time, mean, and variance
+vector of name, datetime, mean, and variance
 }
 \description{
 Extract basic image attributes
