@@ -9,7 +9,7 @@ CalculateImageStatistics <- function(filename) {
 #' Extract basic image attributes
 #' @param fullFilename Full path to the file
 #' @param pattern (to extract name, date, and time)
-#' @return vector of name, date, time, mean, and variance
+#' @return vector of name, datetime, mean, and variance
 #' @export
 ExtractBasicImageStatistics <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
   tmpName  <- FileNameParser(fullFilename, pattern)
