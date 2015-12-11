@@ -4,12 +4,16 @@ Version: 0.0.0.9000
 Authors@R: person("Martin", "Roth", email = "roth@knmi.nl", role = c("aut", "cre"))
 Description: Visibility detection from cameras. Also have a look at rcpp/pkg/RcppCImg/ on github.
 Depends:
-    R (>= 3.2.2)
-Imports: Rcpp
+    R (>= 3.2.2),
+    data.table
+Imports:
+    Rcpp,
+    data.table
 License: What license is it under?
 LazyData: true
 RoxygenNote: 5.0.1
 LinkingTo: Rcpp
 Suggests: knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr
