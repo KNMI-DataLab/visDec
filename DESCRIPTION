@@ -8,12 +8,16 @@ Depends:
     data.table
 Imports:
     Rcpp,
-    data.table
+    data.table,
+    jpeg
 License: What license is it under?
 LazyData: true
 RoxygenNote: 5.0.1
 LinkingTo: Rcpp
 Suggests: knitr,
     rmarkdown,
-    testthat
+    testthat,
+    foreach,
+    itertools,
+    ggplot2
 VignetteBuilder: knitr

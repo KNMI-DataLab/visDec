@@ -7,7 +7,7 @@
 PointAnalyser(filename)
 }
 \arguments{
-\item{string}{filename The name of the image file.}
+\item{filename}{The name of the image file.}
 }
 \description{
 With this function one can analyse by clicking on a point in

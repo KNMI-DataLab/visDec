@@ -5,13 +5,12 @@
 #' @description With this function one can analyse by clicking on a point in
 #' the selected image the (R,G,B) intensity profiles of the corresponding
 #' image line (in another window)
-#' @param string filename The name of the image file.
+#' @param filename The name of the image file.
 #' @export
 PointAnalyser <- function(filename) {
     invisible(.Call('visDec_PointAnalyser', PACKAGE = 'visDec', filename))
 }
 
-#' @export
 ImageSummary <- function(filename) {
     .Call('visDec_ImageSummary', PACKAGE = 'visDec', filename)
 }

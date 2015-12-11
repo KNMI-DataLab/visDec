@@ -8,7 +8,7 @@ using namespace Rcpp;
 //' @description With this function one can analyse by clicking on a point in
 //' the selected image the (R,G,B) intensity profiles of the corresponding
 //' image line (in another window)
-//' @param string filename The name of the image file.
+//' @param filename The name of the image file.
 //' @export
 // [[Rcpp::export]]
 void PointAnalyser(const std::string filename) {
@@ -27,7 +27,7 @@ void PointAnalyser(const std::string filename) {
   }
 }
 
-//' @export
+///' @export
 // [[Rcpp::export]]
 RcppExport SEXP ImageSummary(const std::string filename) {
   CImg<unsigned char> image(filename.c_str());
