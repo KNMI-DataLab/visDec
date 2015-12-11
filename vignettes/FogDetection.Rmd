@@ -43,4 +43,9 @@ ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"],
        aes(x = dateTime, y = FS261/mean(FS261))) + geom_line() + 
   geom_line(aes(x = datetime, y = var/mean(var)), data=imageSummary, col = "red")
 #ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"], aes(x = dateTime, y = FS261)) + geom_line()
+
+PointAnalyser(filenames[60])
 ```
+
+## Outlook
+Is it promising to search for a horizontal window, with the maximum contrast and use this only this window to determine fog? In this way areas with only sky or grass could be neglected.
