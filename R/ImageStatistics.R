@@ -11,16 +11,18 @@ CalculateImageStatistics <- function(filename) {
 #' @param pattern (to extract name, date, and time)
 #' @return vector of name, datetime, mean, and variance
 #' @export
+#' @import data.table
 ExtractBasicImageStatistics <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
   tmpName  <- FileNameParser(fullFilename, pattern)
   tmpStats <- ImageSummary(fullFilename)
-  return(data.frame(name     = tmpName$name,
+  return(data.table(name     = tmpName$name,
                     datetime = tmpName$datetime,
                     mean     = tmpStats$mean,
                     var      = tmpStats$variance))
 }
 
 FileNameParser <- function(fullFilename, pattern) {
+  if (!file.exists(fullFilename)) stop("File does not exist.")
   if (pattern != "na*me_yyyymmdd_hhmm.jpg") stop("pattern not implemented")
   tmp <- strsplit(fullFilename, "/")[[1]]
   tmp <- tmp[length(tmp)]
@@ -37,3 +39,4 @@ FileNameParser <- function(fullFilename, pattern) {
   datetime <- as.POSIXct(paste(paste(year,month,day,sep="-"), paste(hour,min,sep=":")))
   return(list(name = name, datetime = datetime))
 }
+
