@@ -17,6 +17,7 @@ library(foreach)
 library(itertools)
 library(data.table)
 library(visDec)
+library(imager)
 filenames <- list.files("../inst/extdata/Meetterrein/", pattern=".jpg", full.names=TRUE)
 imageSummary <- lapply(filenames, ExtractBasicImageStatistics)
 imageSummary <- rbindlist(imageSummary)
@@ -49,3 +50,12 @@ PointAnalyser(filenames[60])
 
 ## Outlook
 Is it promising to search for a horizontal window, with the maximum contrast and use this only this window to determine fog? In this way areas with only sky or grass could be neglected.
+
+```{r, fig.show='hold'}
+im <- load.image(filenames[1])
+mean(im)
+var(im)
+
+filenames[1] %>% ExtractBasicImageStatistics()
+```
+
