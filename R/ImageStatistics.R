@@ -1,20 +1,23 @@
 #' @useDynLib visDec
 #' @importFrom Rcpp sourceCpp
+#' @import imager
 CalculateImageStatistics <- function(filename) {
-  img <- jpeg::readJPEG(filename)
-  return(c(mean = mean(img),
-              sd = sd(img)))
+  img <- load.image(filename)
+  return(list(mean = mean(img),
+              variance = var(img)))
 }
 
 #' Extract basic image attributes
 #' @param fullFilename Full path to the file
 #' @param pattern (to extract name, date, and time)
+#' @param method Defaults to own CImg implementation with imager as alternative
 #' @return vector of name, datetime, mean, and variance
 #' @export
 #' @import data.table
-ExtractBasicImageStatistics <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
+ExtractBasicImageStatistics <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg", method = "own") {
   tmpName  <- FileNameParser(fullFilename, pattern)
-  tmpStats <- ImageSummary(fullFilename)
+  if (method=="own") tmpStats <- ImageSummary(fullFilename)
+  else tmpStats <- CalculateImageStatistics(fullFilename)
   return(data.table(name     = tmpName$name,
                     datetime = tmpName$datetime,
                     mean     = tmpStats$mean,

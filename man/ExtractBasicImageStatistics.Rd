@@ -4,12 +4,15 @@
 \alias{ExtractBasicImageStatistics}
 \title{Extract basic image attributes}
 \usage{
-ExtractBasicImageStatistics(fullFilename, pattern = "na*me_yyyymmdd_hhmm.jpg")
+ExtractBasicImageStatistics(fullFilename, pattern = "na*me_yyyymmdd_hhmm.jpg",
+  method = "own")
 }
 \arguments{
 \item{fullFilename}{Full path to the file}
 
 \item{pattern}{(to extract name, date, and time)}
+
+\item{method}{Defaults to own CImg implementation with imager as alternative}
 }
 \value{
 vector of name, datetime, mean, and variance
