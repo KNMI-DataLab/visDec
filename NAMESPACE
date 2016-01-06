@@ -3,5 +3,6 @@
 export(ExtractBasicImageStatistics)
 export(PointAnalyser)
 import(data.table)
+import(imager)
 importFrom(Rcpp,sourceCpp)
 useDynLib(visDec)

@@ -9,8 +9,9 @@ Depends:
 Imports:
     Rcpp,
     data.table,
+    imager,
     jpeg
-License: What license is it under?
+License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
 LinkingTo: Rcpp
@@ -21,3 +22,4 @@ Suggests: knitr,
     itertools,
     ggplot2
 VignetteBuilder: knitr
+SystemRequirements: GNU make
