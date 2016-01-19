@@ -1,0 +1,41 @@
+\documentclass{article}
+
+\begin{document}
+<<>>=
+library(visDec)
+library(ggplot2)
+@
+
+Image statistics for October
+<<ImageStatistics, cache=TRUE>>=
+filenames <- list.files("~/Dropbox/CameraData/201510", pattern=glob2rx("*20151009*.jpg"), full.names=TRUE)
+system.time(imageSummary <- lapply(filenames, ExtractBasicImageStatistics))
+system.time(imageSummary <- lapply(filenames, ExtractBasicImageStatistics, method="imager"))
+imageSummary <- rbindlist(imageSummary)
+imageVarGradient <- lapply(filenames, CalculateVarGradient)
+imageVarGradient <- rbindlist(imageVarGradient)
+@
+
+<<>>=
+imageSummary[, day := mday(datetime)]
+ggplot(imageSummary, aes(x = datetime, y = mean)) + geom_line()
+ggplot(imageSummary, aes(x = datetime, y = var)) + geom_line()
+ggplot(imageSummary[day==9], aes(x = datetime, y = sqrt(var)/mean)) + geom_line()
+@
+
+<<>>=
+imageSummary[, day := mday(datetime)]
+imageSummary[, hour := hour(datetime)]
+imageSummaryDay <- imageSummary[hour %in% seq(6, 18, 1), ]
+test <- imageSummaryDay[, .(datetime, disp=sqrt(var)/mean)]
+setkey(test, disp)
+@
+
+<<>>=
+imageVarGradient[, day := mday(datetime)]
+imageVarGradient[, hour := hour(datetime)]
+imageVarGradientDay <- imageVarGradient[hour %in% seq(6, 18, 1), ]
+ggplot(imageVarGradientDay, aes(x = datetime, y = var)) + geom_line()
+@
+
+\end{document}

@@ -7,6 +7,21 @@ CalculateImageStatistics <- function(filename) {
               variance = var(img)))
 }
 
+#' Calculate variance of gradient
+#' @export
+CalculateVarGradient <- function(filename, axes = "x") {
+  stopifnot(axes=="x")
+  img     <- load.image(filename)
+  imgName <- FileNameParser(filename, "na*me_yyyymmdd_hhmm.jpg")
+  imgGrad <- get_gradient(img, axes)[[1]]
+  imgMean <- mean(imgGrad)
+  imgVar  <- var(get_gradient(img, axes)[[1]])
+  return(data.table(name     = imgName$name,
+                    datetime = imgName$datetime,
+                    mean     = imgMean,
+                    var      = imgVar))
+}
+
 #' Extract basic image attributes
 #' @param fullFilename Full path to the file
 #' @param pattern (to extract name, date, and time)
