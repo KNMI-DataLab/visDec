@@ -28,22 +28,30 @@ ggplot(imageSummary, aes(x = datetime, y = sqrt(var)/mean)) + geom_line()
 ```
 
 ```{r, fig.show='hold'}
-sensor <- data.table(read.table("../inst/extdata/Sensor/MOR_DeBilt_201510.txt", header=TRUE))
+sensorFiles <- list.files("../inst/extdata/Sensor",
+                          pattern=glob2rx("MOR_DeBilt*.txt"),
+                          full.names=TRUE)
+sensor <- rbindlist(lapply(sensorFiles, fread))
+sensor[FS261 == -1, FS261 := NA]
 fn <- function(x) {
   if (x < 10000) paste("00", x, sep="")
   else if (x < 100000) paste("0", x, sep="")
+  else if (x == 240000) paste("235959") #Fix naming
   else paste(x)
 }
 newTime <- sensor[, fn(hhmmss), by = .(yyyymmhh, hhmmss)]$V1
 sensor[, hhmmss := newTime]
 newDateTime <- as.POSIXct(sensor[, paste(yyyymmhh, hhmmss)], format="%Y%m%d %H%M%S")
-sensor[, dateTime := newDateTime]
-sensor[, yyyymmhh := NULL]
+sensor[, yyyymmhh := newDateTime]
+setnames(sensor, "yyyymmhh", "dateTime")
 sensor[, hhmmss := NULL]
-ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"],
-       aes(x = dateTime, y = FS261/mean(FS261))) + geom_line() + 
-  geom_line(aes(x = datetime, y = var/mean(var)), data=imageSummary, col = "red")
-#ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"], aes(x = dateTime, y = FS261)) + geom_line()
+sensor[, year := year(dateTime)]
+sensor[, month := month(dateTime)]
+sensor[, day := mday(dateTime)]
+sensor[, hour := hour(dateTime)]
+
+sensor[FS261 < 200, unique(day), by = month]
+sensor[FS261 < 200 & month == 11 & day == 8, ]
 
 PointAnalyser(filenames[60])
 ```
