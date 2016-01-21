@@ -18,14 +18,15 @@ library(itertools)
 library(data.table)
 library(visDec)
 library(imager)
-filenames <- list.files("../inst/extdata/Meetterrein/", pattern=".jpg", full.names=TRUE)
+filenames <- list.files("../inst/extdata/Meetterrein/", pattern=glob2rx("Meetterrein*.jpg"), full.names=TRUE)
 imageSummary <- lapply(filenames, ExtractBasicImageStatistics)
 imageSummary <- rbindlist(imageSummary)
-ggplot(imageSummary, aes(x = datetime, y = mean)) + geom_line()
-ggplot(imageSummary, aes(x = datetime, y = var)) + geom_line()
-ggplot(imageSummary, aes(x = datetime, y = sqrt(var)/mean)) + geom_line()
+ggplot(imageSummary, aes(x = dateTime, y = mean)) + geom_line()
+ggplot(imageSummary, aes(x = dateTime, y = var)) + geom_line()
+ggplot(imageSummary, aes(x = dateTime, y = sqrt(var)/mean)) + geom_line()
 #ggplot(imageSummary[datetime > "2015-10-09" & datetime <= "2015-10-10"], aes(x = datetime, y = mean)) + geom_line()
 ```
+
 
 ```{r, fig.show='hold'}
 sensorFiles <- list.files("../inst/extdata/Sensor",
@@ -36,12 +37,12 @@ sensor[FS261 == -1, FS261 := NA]
 fn <- function(x) {
   if (x < 10000) paste("00", x, sep="")
   else if (x < 100000) paste("0", x, sep="")
-  else if (x == 240000) paste("235959") #Fix naming
   else paste(x)
 }
 newTime <- sensor[, fn(hhmmss), by = .(yyyymmhh, hhmmss)]$V1
 sensor[, hhmmss := newTime]
 newDateTime <- as.POSIXct(sensor[, paste(yyyymmhh, hhmmss)], format="%Y%m%d %H%M%S")
+newDateTime <- newDateTime - 10 * 60 # to match time from camera to sensor
 sensor[, yyyymmhh := newDateTime]
 setnames(sensor, "yyyymmhh", "dateTime")
 sensor[, hhmmss := NULL]
@@ -54,6 +55,17 @@ sensor[FS261 < 200, unique(day), by = month]
 sensor[FS261 < 200 & month == 11 & day == 8, ]
 
 PointAnalyser(filenames[60])
+```
+
+```{r, fig.show='hold'}
+setkey(sensor, dateTime)
+setkey(imageSummary, dateTime)
+test <- merge(imageSummary, sensor)
+test[, visibility := factor(1000)]
+test[FS261 < 500, visibility := factor(500)]
+ggplot(test, aes(x = mean, y = FS261)) + geom_point()
+ggplot(test, aes(x = var, y = FS261)) + geom_point()
+ggplot(test, aes(x = mean, y = var, col = visibility)) + geom_point()
 ```
 
 ## Outlook

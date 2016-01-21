@@ -17,7 +17,7 @@ CalculateVarGradient <- function(filename, axes = "x") {
   imgMean <- mean(imgGrad)
   imgVar  <- var(get_gradient(img, axes)[[1]])
   return(data.table(name     = imgName$name,
-                    datetime = imgName$datetime,
+                    dateTime = imgName$datetime,
                     mean     = imgMean,
                     var      = imgVar))
 }
@@ -34,7 +34,7 @@ ExtractBasicImageStatistics <- function(fullFilename, pattern="na*me_yyyymmdd_hh
   if (method=="own") tmpStats <- ImageSummary(fullFilename)
   else tmpStats <- CalculateImageStatistics(fullFilename)
   return(data.table(name     = tmpName$name,
-                    datetime = tmpName$datetime,
+                    dateTime = tmpName$datetime,
                     mean     = tmpStats$mean,
                     var      = tmpStats$variance))
 }
