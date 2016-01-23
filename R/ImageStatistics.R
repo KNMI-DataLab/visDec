@@ -17,7 +17,7 @@ CalculateVarGradient <- function(filename, axes = "x") {
   imgMean <- mean(imgGrad)
   imgVar  <- var(get_gradient(img, axes)[[1]])
   return(data.table(name     = imgName$name,
-                    dateTime = imgName$datetime,
+                    dateTime = imgName$dateTime,
                     mean     = imgMean,
                     var      = imgVar))
 }
@@ -34,11 +34,15 @@ ExtractBasicImageStatistics <- function(fullFilename, pattern="na*me_yyyymmdd_hh
   if (method=="own") tmpStats <- ImageSummary(fullFilename)
   else tmpStats <- CalculateImageStatistics(fullFilename)
   return(data.table(name     = tmpName$name,
-                    dateTime = tmpName$datetime,
+                    dateTime = tmpName$dateTime,
                     mean     = tmpStats$mean,
                     var      = tmpStats$variance))
 }
 
+#' Extracts name and date time from filename
+#' @param fullFilename String
+#' @param pattern String encoding the filename pattern
+#' @export
 FileNameParser <- function(fullFilename, pattern) {
   if (!file.exists(fullFilename)) stop("File does not exist.")
   if (pattern != "na*me_yyyymmdd_hhmm.jpg") stop("pattern not implemented")
@@ -54,7 +58,7 @@ FileNameParser <- function(fullFilename, pattern) {
   day   <- substr(date, 7, 8)
   hour  <- substr(time, 1, 2)
   min   <- substr(time, 3, 4)
-  datetime <- as.POSIXct(paste(paste(year,month,day,sep="-"), paste(hour,min,sep=":")))
-  return(list(name = name, datetime = datetime))
+  dateTime <- as.POSIXct(paste(paste(year,month,day,sep="-"), paste(hour,min,sep=":")))
+  return(list(name = name, dateTime = dateTime))
 }
 

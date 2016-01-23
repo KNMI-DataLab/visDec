@@ -2,7 +2,9 @@
 
 export(CalculateVarGradient)
 export(ExtractBasicImageStatistics)
+export(FileNameParser)
 export(PointAnalyser)
+export(ReadMORSensorData)
 import(data.table)
 import(imager)
 importFrom(Rcpp,sourceCpp)

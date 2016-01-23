@@ -9,8 +9,7 @@ Depends:
 Imports:
     Rcpp,
     data.table,
-    imager,
-    jpeg
+    imager
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
