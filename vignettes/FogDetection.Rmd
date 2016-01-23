@@ -32,35 +32,19 @@ ggplot(imageSummary, aes(x = dateTime, y = sqrt(var)/mean)) + geom_line()
 sensorFiles <- list.files("../inst/extdata/Sensor",
                           pattern=glob2rx("MOR_DeBilt*.txt"),
                           full.names=TRUE)
-sensor <- rbindlist(lapply(sensorFiles, fread))
-sensor[FS261 == -1, FS261 := NA]
-fn <- function(x) {
-  if (x < 10000) paste("00", x, sep="")
-  else if (x < 100000) paste("0", x, sep="")
-  else paste(x)
-}
-newTime <- sensor[, fn(hhmmss), by = .(yyyymmhh, hhmmss)]$V1
-sensor[, hhmmss := newTime]
-newDateTime <- as.POSIXct(sensor[, paste(yyyymmhh, hhmmss)], format="%Y%m%d %H%M%S")
-newDateTime <- newDateTime - 10 * 60 # to match time from camera to sensor
-sensor[, yyyymmhh := newDateTime]
-setnames(sensor, "yyyymmhh", "dateTime")
-sensor[, hhmmss := NULL]
-sensor[, year := year(dateTime)]
-sensor[, month := month(dateTime)]
-sensor[, day := mday(dateTime)]
-sensor[, hour := hour(dateTime)]
+sensorData <- visDec::ReadMORSensorData(sensorFiles)
 
-sensor[FS261 < 200, unique(day), by = month]
-sensor[FS261 < 200 & month == 11 & day == 8, ]
+sensorData[FS261 < 500, unique(day), by = month]
+sensorData[FS261 < 200, unique(day), by = month]
+sensorData[FS261 < 50, unique(day), by = month]
 
 PointAnalyser(filenames[60])
 ```
 
 ```{r, fig.show='hold'}
-setkey(sensor, dateTime)
+setkey(sensorData, dateTime)
 setkey(imageSummary, dateTime)
-test <- merge(imageSummary, sensor)
+test <- merge(imageSummary, sensorData)
 test[, visibility := factor(1000)]
 test[FS261 < 500, visibility := factor(500)]
 ggplot(test, aes(x = mean, y = FS261)) + geom_point()
