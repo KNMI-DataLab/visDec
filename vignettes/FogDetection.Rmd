@@ -20,14 +20,14 @@ knitr::opts_chunk$set(
 ```{r, include=FALSE}
 library(visDec)
 library(ggplot2)
-library(iterators)
 library(foreach)
 library(doParallel)
 registerDoParallel(cores=3)
 library(imager)
 ```
 
-```{r, fig.show='hold', cache = TRUE}
+### Computing basis image statistics
+```{r, fig.show='hold', cache =TRUE}
 filenames <- list.files("../inst/extdata/Meetterrein/",
                         pattern=glob2rx("Meetterrein_20151009*.jpg"),
                         full.names=TRUE)
@@ -41,6 +41,7 @@ imageSummary <- foreach(file = iter(filenames),
 }
 ```
 
+### Load sensor values
 ```{r, fig.show='hold'}
 sensorFiles <- list.files("../inst/extdata/Sensor",
                           pattern=glob2rx("MOR_DeBilt*.txt"),
@@ -51,6 +52,7 @@ setkey(imageSummary, dateTime)
 imageSummary <- merge(imageSummary, sensorData)
 ```
 
+### Time series
 ```{r, fig.show='hold'}
 ggplot(imageSummary, aes(x = dateTime, y = mean)) + geom_line() + xlab("")
 ggplot(imageSummary, aes(x = dateTime, y = var)) + geom_line() + xlab("")
@@ -60,14 +62,13 @@ ggplot(imageSummary, aes(x = dateTime, y= FS261)) + geom_line() +
   xlab("") 
 ```
 
-Subsetting
 ```{r, fig.show='hold'}
 ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
        aes(x = dateTime, y = var)) + geom_line() + xlab("")
 ```
 
 
-
+### Scatter plots
 ```{r, fig.show='hold'}
 imageSummary[, visibility := factor(1000)]
 imageSummary[FS261 < 500, visibility := factor(500)]

@@ -18,7 +18,7 @@ Suggests: knitr,
     rmarkdown,
     testthat,
     foreach,
-    itertools,
+    doParrallel,
     ggplot2
 VignetteBuilder: knitr
 SystemRequirements: GNU make
