@@ -1,0 +1,14 @@
+base
+knitr
+data.table
+visDec
+ggplot2
+iterators
+foreach
+doParallel
+plyr
+magrittr
+stringr
+png
+jpeg
+imager

@@ -1,6 +1,6 @@
 ---
 title: "Fog Detection"
-author: "Martin"
+author: "Martin Roth"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -9,43 +9,77 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width  = 6,
+  fig.height = 4
+)
+```
 
-## Image application
-```{r, fig.show='hold'}
-library(ggplot2)
-library(foreach)
-library(itertools)
-library(data.table)
+## Example how to use visDec
+### Load required libaries
+```{r, message=FALSE}
 library(visDec)
-filenames <- list.files("../inst/extdata/Meetterrein/", pattern=".jpg", full.names=TRUE)
-imageSummary <- lapply(filenames, ExtractBasicImageStatistics)
-imageSummary <- rbindlist(imageSummary)
-ggplot(imageSummary, aes(x = datetime, y = mean)) + geom_line()
-ggplot(imageSummary, aes(x = datetime, y = var)) + geom_line()
-ggplot(imageSummary, aes(x = datetime, y = sqrt(var)/mean)) + geom_line()
-#ggplot(imageSummary[datetime > "2015-10-09" & datetime <= "2015-10-10"], aes(x = datetime, y = mean)) + geom_line()
+library(ggplot2)
+library(doParallel)
+registerDoParallel()
+library(imager)
+```
+
+### Computing basis image statistics
+```{r}
+filenames <- list.files("../inst/extdata/Meetterrein/",
+                        pattern=glob2rx("Meetterrein_20151009*.jpg"),
+                        full.names=TRUE)
+imageSummary <- foreach(file = iter(filenames),
+                        .combine = rbind) %dopar% {
+  fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
+  im <- load.image(file)
+  data.table(name = fileInformation$name,
+             dateTime = fileInformation$dateTime,
+             mean = mean(im), var = var(im))
+}
+```
+
+
+
+### Load sensor values
+```{r, fig.show='hold'}
+sensorFiles <- list.files("../inst/extdata/Sensor",
+                          pattern=glob2rx("MOR_DeBilt*.txt"),
+                          full.names=TRUE)
+sensorData <- ReadMORSensorData(sensorFiles)
+setkey(sensorData, dateTime)
+setkey(imageSummary, dateTime)
+imageSummary <- merge(imageSummary, sensorData)
+```
+
+### Time series
+```{r, fig.show='hold'}
+ggplot(imageSummary, aes(x = dateTime, y = mean)) + geom_line() + xlab("")
+ggplot(imageSummary, aes(x = dateTime, y = var)) + geom_line() + xlab("")
+ggplot(imageSummary, aes(x = dateTime, y = sqrt(var)/mean)) + geom_line() +
+  xlab("") 
+ggplot(imageSummary, aes(x = dateTime, y= FS261)) + geom_line() +
+  xlab("") 
 ```
 
 ```{r, fig.show='hold'}
-sensor <- data.table(read.table("../inst/extdata/Sensor/MOR_DeBilt_201510.txt", header=TRUE))
-fn <- function(x) {
-  if (x < 10000) paste("00", x, sep="")
-  else if (x < 100000) paste("0", x, sep="")
-  else paste(x)
-}
-newTime <- sensor[, fn(hhmmss), by = .(yyyymmhh, hhmmss)]$V1
-sensor[, hhmmss := newTime]
-newDateTime <- as.POSIXct(sensor[, paste(yyyymmhh, hhmmss)], format="%Y%m%d %H%M%S")
-sensor[, dateTime := newDateTime]
-sensor[, yyyymmhh := NULL]
-sensor[, hhmmss := NULL]
-ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"],
-       aes(x = dateTime, y = FS261/mean(FS261))) + geom_line() + 
-  geom_line(aes(x = datetime, y = var/mean(var)), data=imageSummary, col = "red")
-#ggplot(sensor[dateTime > "2015-10-09" & dateTime <= "2015-10-10"], aes(x = dateTime, y = FS261)) + geom_line()
-
-PointAnalyser(filenames[60])
+ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
+       aes(x = dateTime, y = var)) + geom_line() + xlab("")
 ```
 
-## Outlook
-Is it promising to search for a horizontal window, with the maximum contrast and use this only this window to determine fog? In this way areas with only sky or grass could be neglected.
+
+### Scatter plots
+```{r, fig.show='hold'}
+imageSummary[, visibility := factor(1000)]
+imageSummary[FS261 < 500, visibility := factor(500)]
+imageSummary[FS261 < 200, visibility := factor(200)]
+ggplot(imageSummary, aes(x = mean, y = FS261)) + geom_point()
+ggplot(imageSummary, aes(x = var, y = FS261)) + geom_point()
+ggplot(imageSummary, aes(x = mean, y = var, col = visibility)) + geom_point()
+```
+
+```{r}
+stopImplicitCluster()
+```
