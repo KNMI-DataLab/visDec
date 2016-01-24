@@ -1,6 +1,6 @@
 ---
 title: "Fog Detection"
-author: "Martin"
+author: "Martin Roth"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -9,57 +9,71 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
-## Image application
-```{r, fig.show='hold'}
-library(ggplot2)
-library(foreach)
-library(itertools)
-library(data.table)
-library(visDec)
-library(imager)
-filenames <- list.files("../inst/extdata/Meetterrein/", pattern=glob2rx("Meetterrein*.jpg"), full.names=TRUE)
-imageSummary <- lapply(filenames, ExtractBasicImageStatistics)
-imageSummary <- rbindlist(imageSummary)
-ggplot(imageSummary, aes(x = dateTime, y = mean)) + geom_line()
-ggplot(imageSummary, aes(x = dateTime, y = var)) + geom_line()
-ggplot(imageSummary, aes(x = dateTime, y = sqrt(var)/mean)) + geom_line()
-#ggplot(imageSummary[datetime > "2015-10-09" & datetime <= "2015-10-10"], aes(x = datetime, y = mean)) + geom_line()
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width  = 6,
+  fig.height = 4
+)
 ```
 
+## Example how to use visDec
+```{r, include=FALSE}
+library(visDec)
+library(ggplot2)
+library(iterators)
+library(foreach)
+library(doParallel)
+registerDoParallel(cores=3)
+library(imager)
+```
+
+```{r, fig.show='hold', cache = TRUE}
+filenames <- list.files("../inst/extdata/Meetterrein/",
+                        pattern=glob2rx("Meetterrein_20151009*.jpg"),
+                        full.names=TRUE)
+imageSummary <- foreach(file = iter(filenames),
+                        .combine = rbind) %dopar% {
+  fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
+  im <- load.image(file)
+  data.table(name = fileInformation$name,
+             dateTime = fileInformation$dateTime,
+             mean = mean(im), var = var(im))
+}
+```
 
 ```{r, fig.show='hold'}
 sensorFiles <- list.files("../inst/extdata/Sensor",
                           pattern=glob2rx("MOR_DeBilt*.txt"),
                           full.names=TRUE)
-sensorData <- visDec::ReadMORSensorData(sensorFiles)
-
-sensorData[FS261 < 500, unique(day), by = month]
-sensorData[FS261 < 200, unique(day), by = month]
-sensorData[FS261 < 50, unique(day), by = month]
-
-PointAnalyser(filenames[60])
-```
-
-```{r, fig.show='hold'}
+sensorData <- ReadMORSensorData(sensorFiles)
 setkey(sensorData, dateTime)
 setkey(imageSummary, dateTime)
-test <- merge(imageSummary, sensorData)
-test[, visibility := factor(1000)]
-test[FS261 < 500, visibility := factor(500)]
-ggplot(test, aes(x = mean, y = FS261)) + geom_point()
-ggplot(test, aes(x = var, y = FS261)) + geom_point()
-ggplot(test, aes(x = mean, y = var, col = visibility)) + geom_point()
+imageSummary <- merge(imageSummary, sensorData)
 ```
 
-## Outlook
-Is it promising to search for a horizontal window, with the maximum contrast and use this only this window to determine fog? In this way areas with only sky or grass could be neglected.
+```{r, fig.show='hold'}
+ggplot(imageSummary, aes(x = dateTime, y = mean)) + geom_line() + xlab("")
+ggplot(imageSummary, aes(x = dateTime, y = var)) + geom_line() + xlab("")
+ggplot(imageSummary, aes(x = dateTime, y = sqrt(var)/mean)) + geom_line() +
+  xlab("") 
+ggplot(imageSummary, aes(x = dateTime, y= FS261)) + geom_line() +
+  xlab("") 
+```
+
+Subsetting
+```{r, fig.show='hold'}
+ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
+       aes(x = dateTime, y = var)) + geom_line() + xlab("")
+```
+
+
 
 ```{r, fig.show='hold'}
-im <- load.image(filenames[1])
-mean(im)
-var(im)
-
-filenames[1] %>% ExtractBasicImageStatistics()
+imageSummary[, visibility := factor(1000)]
+imageSummary[FS261 < 500, visibility := factor(500)]
+imageSummary[FS261 < 200, visibility := factor(200)]
+ggplot(imageSummary, aes(x = mean, y = FS261)) + geom_point()
+ggplot(imageSummary, aes(x = var, y = FS261)) + geom_point()
+ggplot(imageSummary, aes(x = mean, y = var, col = visibility)) + geom_point()
 ```
 

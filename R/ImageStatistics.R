@@ -1,38 +1,15 @@
-#' @useDynLib visDec
-#' @importFrom Rcpp sourceCpp
-#' @import imager
-CalculateImageStatistics <- function(filename) {
-  img <- load.image(filename)
-  return(list(mean = mean(img),
-              variance = var(img)))
-}
-
-#' Calculate variance of gradient
-#' @export
-CalculateVarGradient <- function(filename, axes = "x") {
-  stopifnot(axes=="x")
-  img     <- load.image(filename)
-  imgName <- FileNameParser(filename, "na*me_yyyymmdd_hhmm.jpg")
-  imgGrad <- get_gradient(img, axes)[[1]]
-  imgMean <- mean(imgGrad)
-  imgVar  <- var(get_gradient(img, axes)[[1]])
-  return(data.table(name     = imgName$name,
-                    dateTime = imgName$dateTime,
-                    mean     = imgMean,
-                    var      = imgVar))
-}
-
 #' Extract basic image attributes
 #' @param fullFilename Full path to the file
 #' @param pattern (to extract name, date, and time)
-#' @param method Defaults to own CImg implementation with imager as alternative
 #' @return vector of name, datetime, mean, and variance
 #' @export
+#' @useDynLib visDec
 #' @import data.table
-ExtractBasicImageStatistics <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg", method = "own") {
+#' @import imager
+#' @importFrom Rcpp sourceCpp
+ExtractBasicImageStatistics <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
   tmpName  <- FileNameParser(fullFilename, pattern)
-  if (method=="own") tmpStats <- ImageSummary(fullFilename)
-  else tmpStats <- CalculateImageStatistics(fullFilename)
+  tmpStats <- ImageSummary(fullFilename)
   return(data.table(name     = tmpName$name,
                     dateTime = tmpName$dateTime,
                     mean     = tmpStats$mean,
