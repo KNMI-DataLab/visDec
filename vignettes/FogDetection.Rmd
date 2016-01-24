@@ -27,7 +27,7 @@ library(imager)
 ```
 
 ### Computing basis image statistics
-```{r, fig.show='hold', cache =TRUE}
+```{r, fig.show='hold'}
 filenames <- list.files("../inst/extdata/Meetterrein/",
                         pattern=glob2rx("Meetterrein_20151009*.jpg"),
                         full.names=TRUE)
