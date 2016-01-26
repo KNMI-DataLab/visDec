@@ -28,7 +28,8 @@ library(imager)
 
 ### Computing basis image statistics
 ```{r}
-filenames <- list.files("~/Dropbox/SWI_FogDetection/TrainingSet/",
+filenames <- list.files("~/Dropbox/SWI_FogDetection/TrainingSet",
+filenames <- list.files("~/Dropbox/SWI_FogDetection/OctoberDay/",
                         pattern=glob2rx("Meetterrein_*.jpg"),
                         full.names=TRUE)
 #filenames <- list.files("../inst/extdata/Meetterrein/",
@@ -79,7 +80,8 @@ ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
 
 ### Scatter plots
 ```{r, fig.show='hold'}
-imageSummary[, visibility := factor(1000)]
+imageSummary[, visibility := factor(2000)]
+imageSummary[FS261 < 1000, visibility := factor(1000)]
 imageSummary[FS261 < 500, visibility := factor(500)]
 imageSummary[FS261 < 200, visibility := factor(200)]
 imageSummary[, transmission := read.csv("~/Dropbox/SWI_FogDetection/TrainingSet/Values.csv", sep=";")[, 3]]
@@ -91,7 +93,8 @@ ggplot(imageSummary[hour %in% seq(6, 16, by = 1), ], aes(x = log(FS261), y = mea
 ggplot(imageSummary[hour %in% c(seq(0, 4, by = 1), seq(18, 24, by = 1)), ], aes(x = log(FS261), y = meanThresholdGradientY, col = visibility)) + geom_point()
 ggplot(imageSummary[hour %in% c(seq(0, 4, by = 1), seq(18, 24, by = 1)), ], aes(x = log(FS261), y = transmission, col = visibility)) + geom_point()
 ggplot(imageSummary[hour %in% seq(6, 16, by = 1), ], aes(x = log(FS261), y = transmission, col = visibility)) + geom_point()
-ggplot(imageSummary, aes(x = log(FS261), y = transmission)) + geom_point() + geom_smooth(method="lm")
+ggplot(imageSummary, aes(x = log(FS261), y = transmission)) + geom_point() + geom_smooth(method="lm") + geom_quantile(quantiles=0.5, col = 2)
+ggplot(imageSummary[hour %in% seq(6, 16, by = 1), ], aes(x = meanThresholdGradientY, y = transmission)) + geom_point() + geom_quantile(quantiles=0.5)
 ```
 
 #```{r}
