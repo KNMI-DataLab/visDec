@@ -25,9 +25,9 @@ FileNameParser <- function(fullFilename, pattern) {
   if (pattern != "na*me_yyyymmdd_hhmm.jpg") stop("pattern not implemented")
   tmp <- strsplit(fullFilename, "/")[[1]]
   tmp <- tmp[length(tmp)]
+  name <- tmp
   tmp <- strsplit(tmp, "_")[[1]]
   if (length(tmp)!=3) stop("filename does not match specified pattern")
-  name <- tmp[1]
   date <- tmp[2]
   time <- substr(tmp[3], 1, 4)
   year <- substr(date,1,4)
