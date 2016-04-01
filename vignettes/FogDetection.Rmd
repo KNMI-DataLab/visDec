@@ -29,24 +29,27 @@ library(imager)
 ### Computing basis image statistics
 ```{r}
 #filenames <- list.files("~/Dropbox/SWI_FogDetection/TrainingSet",
-filenames <- list.files("~/Dropbox/SWI_FogDetection/OctoberDay",
-                        pattern=glob2rx("Meetterrein_*.jpg"),
+#filenames <- c(
+#  list.files("~/Dropbox/SWI_FogDetection/OctoberDay", 
+#             pattern=glob2rx("Meetterrein_*.jpg"), full.names=TRUE),
+#  
+#  list.files("~/Dropbox/SWI_FogDetection/NovemberDay",
+#             pattern=glob2rx("Meetterrein_*.jpg"), full.names=TRUE))
+filenames <- list.files("../inst/extdata/Meetterrein/",
+                        pattern=glob2rx("Meetterrein_20151009*.jpg"),
                         full.names=TRUE)
-#filenames <- list.files("../inst/extdata/Meetterrein/",
-#                        pattern=glob2rx("Meetterrein_20151009*.jpg"),
-#                        full.names=TRUE)
 detect.edges <- function(im,sigma=1) {
   # adapted from http://dahtah.github.io/imager/foreground_background.html
   isoblur(im,sigma) %>% imgradient("xy") %>% llply(function(v) v^2) %>%
     add %>% imsplit("c") %>% add 
 }
 
-detect.edges(load.image(filenames[1])) %>% sqrt %>% plot
+detect.edges(load.image(filenames[1])[, -(1 :17), ,]) %>% sqrt %>% plot
 
 imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
   fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
-  im <- load.image(file)
-  imGradient <- get_gradient(im, "xy", scheme = 2L)
+  im <- load.image(file)[, -(1 :17), ,]
+  #imGradient <- get_gradient(im, "xy", scheme = 2L)
   data.table(name = fileInformation$name,
              dateTime = fileInformation$dateTime,
              meanEdge = detect.edges(im, 3) %>% threshold(5) %>% sqrt %>% mean
@@ -65,6 +68,7 @@ sensorData <- ReadMORSensorData(sensorFiles)
 setkey(sensorData, dateTime)
 setkey(imageSummary, dateTime)
 imageSummary <- merge(imageSummary, sensorData)
+imageSummary[, medianMOR := median(c(FS261, TMM261, FS260), na.rm=TRUE), by = dateTime]
 ```
 
 ### Time series
@@ -73,7 +77,7 @@ ggplot(imageSummary, aes(x = dateTime, y = meanEdge)) + geom_line() + xlab("")
 #ggplot(imageSummary, aes(x = dateTime, y = var)) + geom_line() + xlab("")
 #ggplot(imageSummary, aes(x = dateTime, y = sqrt(var)/mean)) + geom_line() +
 #  xlab("") 
-ggplot(imageSummary, aes(x = dateTime, y= FS261)) + geom_line() +
+ggplot(imageSummary, aes(x = dateTime, y= medianMOR)) + geom_line() +
   xlab("") 
 ```
 
@@ -86,20 +90,21 @@ ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
 ### Scatter plots
 ```{r, fig.show='hold'}
 imageSummary[, visibility := factor(2000)]
-imageSummary[FS261 < 1000, visibility := factor(1000)]
-imageSummary[FS261 < 500, visibility := factor(500)]
-imageSummary[FS261 < 200, visibility := factor(200)]
+imageSummary[medianMOR < 1000, visibility := factor(1000)]
+imageSummary[medianMOR < 500, visibility := factor(500)]
+imageSummary[medianMOR < 200, visibility := factor(200)]
 #imageSummary[, transmission := read.csv("~/Dropbox/SWI_FogDetection/TrainingSet/Values.csv", sep=";")[, 3]]
-ggplot(imageSummary, aes(x = meanEdge, y = FS261, col = visibility)) + geom_point()
+ggplot(imageSummary, aes(x = meanEdge, y = medianMOR, col = visibility)) + geom_point()
 #ggplot(imageSummary, aes(x = var, y = FS261)) + geom_point()
 #ggplot(imageSummary, aes(x = mean, y = var, col = visibility)) + geom_point()
 #ggplot(imageSummary, aes(x = meanThresholdGradientX, y = meanThresholdGradientY, col = visibility)) + geom_point()
-ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(FS261), y = meanEdge, col = visibility)) + geom_point()
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanEdge, col = visibility)) + geom_point()
 #ggplot(imageSummary[hour %in% c(seq(0, 4, by = 1), seq(18, 24, by = 1)), ], aes(x = log(FS261), y = meanEdge, col = visibility)) + geom_point()
 #ggplot(imageSummary[hour %in% c(seq(0, 4, by = 1), seq(18, 24, by = 1)), ], aes(x = log(FS261), y = transmission, col = visibility)) + geom_point()
 #ggplot(imageSummary[hour %in% seq(6, 16, by = 1), ], aes(x = log(FS261), y = transmission, col = visibility)) + geom_point()
 #ggplot(imageSummary, aes(x = log(FS261), y = transmission)) + geom_point() + geom_smooth(method="lm") + geom_quantile(quantiles=0.5, col = 2)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(FS261), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ```
 
 ```{r, fig.height=4.5, fig.width=6}
