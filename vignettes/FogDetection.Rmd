@@ -28,13 +28,13 @@ library(imager)
 
 ### Computing basis image statistics
 ```{r}
-filenames <- list.files("~/Dropbox/SWI_FogDetection/TrainingSet",
-filenames <- list.files("~/Dropbox/SWI_FogDetection/OctoberDay/",
-                        pattern=glob2rx("Meetterrein_*.jpg"),
-                        full.names=TRUE)
-#filenames <- list.files("../inst/extdata/Meetterrein/",
-#                        pattern=glob2rx("Meetterrein_20151009*.jpg"),
+#filenames <- list.files("~/Dropbox/SWI_FogDetection/TrainingSet",
+#filenames <- list.files("~/Dropbox/SWI_FogDetection/OctoberDay/",
+#                        pattern=glob2rx("Meetterrein_*.jpg"),
 #                        full.names=TRUE)
+filenames <- list.files("../inst/extdata/Meetterrein/",
+                        pattern=glob2rx("Meetterrein_20151009*.jpg"),
+                        full.names=TRUE)
 imageSummary <- foreach(file = iter(filenames),
                         .combine = rbind) %dopar% {
   fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
