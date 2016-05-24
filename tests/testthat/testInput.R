@@ -9,13 +9,13 @@ test_that("FileNameParser", {
   expect_match(paste(FileNameParser(standardFile, "na*me_yyyymmdd_hhmm.jpg")$dateTime), "2015-10-09 06:10:00")
 
   expect_error(ExtractBasicImageStatistics("bliblablub"), "File does not exist.")
+  expect_equal_to_reference(ReadMORSensorData(sensorTestFile), "sensorOutput.rds")
 })
 
 test_that("Regression tests",{
+  skip_on_travis()
   expect_equal_to_reference(ExtractBasicImageStatistics(midnightFile), "midnightOutput.rds")
   expect_equal_to_reference(ExtractBasicImageStatistics(standardFile), "standardOutput.rds")
-
-  expect_equal_to_reference(ReadMORSensorData(sensorTestFile), "sensorOutput.rds")
 })
 
 #expect_true(testRcode())
