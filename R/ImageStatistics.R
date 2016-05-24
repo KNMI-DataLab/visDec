@@ -35,7 +35,9 @@ FileNameParser <- function(fullFilename, pattern) {
   day   <- substr(date, 7, 8)
   hour  <- substr(time, 1, 2)
   min   <- substr(time, 3, 4)
-  dateTime <- as.POSIXct(paste(paste(year,month,day,sep="-"), paste(hour,min,sep=":")))
+  dateTime <- as.POSIXct(paste(paste(year,month,day,sep="-"),
+                               paste(hour,min,sep=":")),
+                         tz = "CET")
   return(list(name = name, dateTime = dateTime))
 }
 
