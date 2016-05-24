@@ -11,6 +11,13 @@ sudo: required
 cache: packages
 warnings_are_errors: true
 
+apt_packages:
+ - libfftw3-dev
+r_binary_packages:
+ - png
+ - jpeg
+ - plyr
+
 r_packages:
   - covr
 after_success:
