@@ -6,7 +6,7 @@ sensorTestFile <- "./MOR_DeBilt_201510.txt"
 
 test_that("FileNameParser", {
   expect_match(FileNameParser(midnightFile, "na*me_yyyymmdd_hhmm.jpg")$name, "Meetterrein")
-  expect_match(FileNameParser(standardFile, "na*me_yyyymmdd_hhmm.jpg")$dateTime, "2015-10-09 06:10:00")
+  expect_match(paste(FileNameParser(standardFile, "na*me_yyyymmdd_hhmm.jpg")$dateTime), "2015-10-09 06:10:00")
 
   expect_error(ExtractBasicImageStatistics("bliblablub"), "File does not exist.")
 })
