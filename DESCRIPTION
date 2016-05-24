@@ -10,7 +10,8 @@ Depends:
 Imports:
     Rcpp,
     data.table,
-    imager
+    imager,
+    R.matlab
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
