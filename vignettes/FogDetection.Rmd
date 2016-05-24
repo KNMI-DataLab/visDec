@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 library(visDec)
 library(ggplot2)
 library(doParallel)
-registerDoParallel()
+registerDoParallel(cores=2)
 library(imager)
 ```
 
