@@ -1,8 +1,16 @@
 # Sample .travis.yml for R projects
 
+# whitelist
+branches:
+  only:
+    - master
+    - develop
+
 language: r
 warnings_are_errors: true
 sudo: required
+cache: packages
+warnings_are_errors: true
 
 r_packages:
   - covr
