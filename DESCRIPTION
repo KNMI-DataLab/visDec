@@ -10,7 +10,10 @@ Depends:
 Imports:
     Rcpp,
     data.table,
-    imager
+    imager,
+    R.matlab,
+    caret,
+    tree
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
@@ -19,6 +22,7 @@ Suggests: knitr,
     rmarkdown,
     testthat,
     doParallel,
+    foreach,
     ggplot2
 VignetteBuilder: knitr
 SystemRequirements: GNU make

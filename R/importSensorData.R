@@ -11,7 +11,7 @@ ReadMORSensorData <- function(filenames) {
   sensorData[TMM261 == -1, TMM261 := NA]
   sensorData[FS260  == -1, FS260  := NA]
   sensorData[, hhmmss := CorrectOurs(hhmmss)]
-  sensorData[, yyyymmdd := as.POSIXct(paste(yyyymmdd, hhmmss), format="%Y%m%d %H%M%S") - 10 * 60]
+  sensorData[, yyyymmdd := as.POSIXct(paste(yyyymmdd, hhmmss), format="%Y%m%d %H%M%S", tz = "CET") - 10 * 60]
   setnames(sensorData, "yyyymmdd", "dateTime")
   sensorData[, hhmmss := NULL]
   sensorData[, year   := year(dateTime)]
