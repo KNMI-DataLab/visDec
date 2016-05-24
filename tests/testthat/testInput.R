@@ -18,5 +18,5 @@ test_that("Regression tests",{
   expect_equal_to_reference(ReadMORSensorData(sensorTestFile), "sensorOutput.rds")
 })
 
-#expect_true(testRcode())
+expect_true(testRcode())
 
