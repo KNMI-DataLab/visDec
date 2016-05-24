@@ -3,8 +3,9 @@
 
 #porting code of the machineLearn.m (just classification tree is implemented)
 
+#' @importFrom R.matlab readMat
 testRcode<-function(){
-  library(R.matlab)
+  # please use something like above for readMat e.g. Namespace imports and roxygen comments
   library(caret)
   library(tree)
   matObjLoad<-readMat("/usr/people/pagani/development/fogVisibility/MatlabCodes/matlabcodes/JAKUB/results_november_all_patch15.mat")
@@ -41,7 +42,8 @@ testRcode<-function(){
 #porting code of the get_dark_channel.m TO BE FINISHED
 getDarkChannel<-function(winSize)
 {
-  library(EBImage)
+  # please use something like above for readMat e.g. Namespace imports and roxygen comments
+  library(EBImage) # is EBImage better than imager?
   library(ptw)
 
   imageFile = "/usr/people/pagani/development/fogVisibility/EHTW_201604071533.jpg"
