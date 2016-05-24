@@ -7,7 +7,6 @@ branches:
     - develop
 
 language: r
-warnings_are_errors: true
 sudo: required
 cache: packages
 warnings_are_errors: true
