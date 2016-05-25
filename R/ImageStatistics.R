@@ -23,8 +23,8 @@ FileNameParser <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
   return(list(name = name, dateTime = dateTime))
 }
 
-
 #' @export
 UndocumentedFunction <- function() {
   message("I am testing the gihub check requirements")
+  message("Maybe with administrators checked as well?")
 }
