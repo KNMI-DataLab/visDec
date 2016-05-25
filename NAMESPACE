@@ -3,3 +3,4 @@
 export(FileNameParser)
 export(ReadMORSensorData)
 import(data.table)
+importFrom(R.matlab,readMat)
