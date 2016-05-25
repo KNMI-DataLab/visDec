@@ -11,5 +11,8 @@ test_that("FileNameParser", {
   expect_equal_to_reference(ReadMORSensorData(sensorTestFile), "sensorOutput.rds")
 })
 
+test_that("git check requirements work", {
+  expect_message(UndocumentedFunction())
+})
 #expect_true(testRcode())
 
