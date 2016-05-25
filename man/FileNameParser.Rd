@@ -4,7 +4,7 @@
 \alias{FileNameParser}
 \title{Extracts name and date time from filename}
 \usage{
-FileNameParser(fullFilename, pattern)
+FileNameParser(fullFilename, pattern = "na*me_yyyymmdd_hhmm.jpg")
 }
 \arguments{
 \item{fullFilename}{String}

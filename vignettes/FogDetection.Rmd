@@ -19,6 +19,7 @@ knitr::opts_chunk$set(
 ## Example how to use visDec
 ### Load required libaries
 ```{r, message=FALSE}
+library(data.table)
 library(visDec)
 library(ggplot2)
 library(doParallel)
