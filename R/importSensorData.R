@@ -3,15 +3,13 @@
 #' @return data.table
 #' @export
 ReadMORSensorData <- function(filenames) {
-  #sensorFiles <- list.files(folderName,
-  #                          pattern=glob2rx("MOR_DeBilt*.txt"),
-  #                          full.names=TRUE)
+  FS261 <- TMM261 <- FS260 <- yyyymmdd <- hhmmss <- dateTime <- day <- NULL
   sensorData <- rbindlist(lapply(filenames, fread))
   sensorData[FS261  == -1, FS261  := NA]
   sensorData[TMM261 == -1, TMM261 := NA]
   sensorData[FS260  == -1, FS260  := NA]
   sensorData[, hhmmss := CorrectOurs(hhmmss)]
-  sensorData[, yyyymmdd := as.POSIXct(paste(yyyymmdd, hhmmss), format="%Y%m%d %H%M%S") - 10 * 60]
+  sensorData[, yyyymmdd := as.POSIXct(paste(yyyymmdd, hhmmss), format="%Y%m%d %H%M%S", tz = "CET") - 10 * 60]
   setnames(sensorData, "yyyymmdd", "dateTime")
   sensorData[, hhmmss := NULL]
   sensorData[, year   := year(dateTime)]

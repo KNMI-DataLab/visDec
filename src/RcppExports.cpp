@@ -5,24 +5,14 @@
 
 using namespace Rcpp;
 
-// PointAnalyser
-void PointAnalyser(const std::string filename);
-RcppExport SEXP visDec_PointAnalyser(SEXP filenameSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< const std::string >::type filename(filenameSEXP);
-    PointAnalyser(filename);
-    return R_NilValue;
-END_RCPP
-}
-// ImageSummary
-RcppExport SEXP ImageSummary(const std::string filename);
-RcppExport SEXP visDec_ImageSummary(SEXP filenameSEXP) {
+// timesTwo
+NumericVector timesTwo(NumericVector x);
+RcppExport SEXP visDec_timesTwo(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< const std::string >::type filename(filenameSEXP);
-    __result = Rcpp::wrap(ImageSummary(filename));
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    __result = Rcpp::wrap(timesTwo(x));
     return __result;
 END_RCPP
 }

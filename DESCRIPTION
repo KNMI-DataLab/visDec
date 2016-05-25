@@ -1,12 +1,12 @@
 Package: visDec
 Title: Visibility Detection from Cameras
-Version: 0.0.0.9001
-Date: 2016-01-24
-Authors@R: person("Martin", "Roth", email = "roth@knmi.nl", role = c("aut", "cre"))
+Version: 0.0.0.9003
+Date: 2016-05-24
+Authors@R: c(person("Martin", "Roth", email = "roth@knmi.nl", role = c("aut", "cre")),
+    person("Andrea", "Pagani", email = "pagani@knmi.nl", role = "aut"))
 Description: Visibility detection from cameras. Also have a look at rcpp/pkg/RcppCImg/ on github.
 Depends:
-    R (>= 3.2.2),
-    data.table
+    R (>= 3.2.2)
 Imports:
     Rcpp,
     data.table,
@@ -22,6 +22,6 @@ Suggests: knitr,
     rmarkdown,
     testthat,
     doParallel,
+    foreach,
     ggplot2
 VignetteBuilder: knitr
-SystemRequirements: GNU make
