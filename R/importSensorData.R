@@ -3,9 +3,7 @@
 #' @return data.table
 #' @export
 ReadMORSensorData <- function(filenames) {
-  #sensorFiles <- list.files(folderName,
-  #                          pattern=glob2rx("MOR_DeBilt*.txt"),
-  #                          full.names=TRUE)
+  FS261 <- TMM261 <- FS260 <- yyyymmdd <- hhmmss <- dateTime <- day <- NULL
   sensorData <- rbindlist(lapply(filenames, fread))
   sensorData[FS261  == -1, FS261  := NA]
   sensorData[TMM261 == -1, TMM261 := NA]

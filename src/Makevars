@@ -1,6 +1,3 @@
 ## We want C++11 as it gets us 'long long' as well
 CXX_STD = CXX11
 
-## We need the CImg library
-PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` -lm -lpthread -L/usr/X11R6/lib -lX11
-PKG_CPPFLAGS += -I../inst/include/
