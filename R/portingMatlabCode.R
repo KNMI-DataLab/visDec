@@ -51,7 +51,6 @@ importImage<-function(imageFile)
 
 #porting code of the get_dark_channel.m
 
-
 getDarkChannel<-function(image,winSize)
 {
   library(doParallel)
@@ -93,6 +92,10 @@ getDarkChannel<-function(image,winSize)
 return(darkChannel)
 }
 
+
+
+#porting code of the get_atmosphere.m
+
 #' @importFrom abind abind
 #'
 getAtmosphere<-function(image,darkChannel)
@@ -120,6 +123,10 @@ getAtmosphere<-function(image,darkChannel)
 }
 
 
+#porting code of the get_transmission_estimate.m
+
+#' @importFrom abind abind
+#'
 getTransmissionEstimate<-function(image,atmosphere,omega,winSize)
 {
   dimImage<-dim(image)
@@ -134,9 +141,13 @@ getTransmissionEstimate<-function(image,atmosphere,omega,winSize)
     print(temp)
     repAtmosphere<-abind(repAtmosphere,temp,along = 4)
   }
+  repAtmosphere<-unname(repAtmosphere)
   transEst <- 1 - omega * getDarkChannel((as.array(image))/repAtmosphere, winSize);
   return(transEst)
 }
+
+
+#porting code of the get_radiance.m
 
 
 getRadiance<-function(image,transmission,atmosphere)
@@ -144,36 +155,132 @@ getRadiance<-function(image,transmission,atmosphere)
   dimImage<-dim(image)
   m<-dimImage[1]
   n<-dimImage[2]
+  channels<-dimImage[4]
 
   toFill<-array(atmosphere,dim = c(1,1,3))
   repAtmosphere<-NULL
+  maxTransmission<-NULL
   for(k in 1:channels)
   {
     temp<- array(toFill[k],dim = c(m,n,1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
-    print(temp)
+    #print(temp)
     repAtmosphere<-abind(repAtmosphere,temp,along = 4)
   }
+  repAtmosphere<-unname(repAtmosphere)
 
-  #<-pmax(transmission, 0.1)
-  # for(k in 1:channels)
-  # {
-  #   temp<- array(toFill[k],dim = c(m,n,1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
+  maxValues<-pmax(transmission, 0.1)
+  for(k in 1:channels)
+  {
+    temp<- array(maxValues,dim = c(m,n,1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
   #   print(temp)
-  #   repAtmosphere<-abind(repAtmosphere,temp,along = 4)
-  # }
+    maxTransmission<-abind(maxTransmission,temp,along = 4)
+  }
 
+  maxTransmission<-unname(maxTransmission)
+
+  radiance <- ((as.array(image) - repAtmosphere)/maxTransmission) + repAtmosphere
+
+  radiance<-unname(radiance)
+  return(radiance)
 
 
 }
 
 
+getLaplacian<-function(image, trimapAll)
+{
+  dimImage<-dim(image)
+  m<-dimImage[1]
+  n<-dimImage[2]
+  channels<-dimImage[4]
 
-# rep_atmosphere = repmat(reshape(atmosphere, [1, 1, 3]), m, n);
-#
-# max_transmission = repmat(max(transmission, 0.1), [1, 1, 3]);
-#
-# radiance = ((image - rep_atmosphere) ./ max_transmission) + rep_atmosphere;
 
+  imgSize<-m*n
+
+  winRad<-1
+
+  epsilon<-0.0000001
+
+  maxNumNeigh<-(winRad*2+1)^2
+
+  #HERE I USE A SQUARE SHAPE TO ERODE AND NOT A DISK SHAPE AS IN THE ORIGINAL MATLAB CODE
+  trimapAll<-erode_square(TrimapAll, winRad*2+1)
+
+  indMat<-matrix(1:imgSize, m, n)
+
+  indices <- which((1 - trimap_all) != 0);
+
+  numInd <- length(indices)
+
+  maxNumVertex <- maxNumNeigh * numInd;
+
+  rowInds <- array( 0, dim=c(maxNumVertex, 1 ))
+  colInds <- array( 0, dim=c(maxNumVertex, 1 ))
+  vals <- array( 0, dim=c(maxNumVertex, 1 ))
+
+  len <- 0
+
+  for(k in 1:length(indices))
+  {
+
+  ind <- indices[k]
+
+  i = ((ind-1) %% m) + 1
+  j = floor((ind-1) / m) + 1
+
+
+
+  mMin = max( 1, i - winRad )
+  mMax = min( m, i + winRad )
+  nMin = max( 1, j - winRad )
+  nMax = min( n, j + winRad )
+
+  winInds = indMat[ m_min : m_max, n_min : n_max]
+  winInds = c(winInds)
+
+  numNeigh = nrow(winInds)
+
+
+  ####################TILL HERE#############################################
+
+  win_image = image( m_min : m_max, n_min : n_max, : );
+  win_image = reshape( win_image, num_neigh, c );
+
+  win_mean = mean( win_image, 1 );
+
+  win_var = inv( (win_image' * win_image / num_neigh) - (win_mean' * win_mean) + (epsilon / num_neigh * eye(c) ) );
+
+  win_image = win_image - repmat( win_mean, num_neigh, 1 );
+
+  win_vals = ( 1 + win_image * win_var * win_image' ) / num_neigh;
+
+    sub_len = num_neigh*num_neigh;
+
+    win_inds = repmat(win_inds, 1, num_neigh);
+
+    row_inds(1+len: len+sub_len) = win_inds(:);
+
+    win_inds = win_inds';
+
+               col_inds(1+len: len+sub_len) = win_inds(:);
+
+               vals(1+len: len+sub_len) = win_vals(:);
+
+               len = len + sub_len;
+  }
+               end
+
+  A = sparse(row_inds(1:len),col_inds(1:len),vals(1:len),img_size,img_size);
+
+               D = spdiags(sum(A,2),0,n*m,n*m);
+
+               L = D - A;
+
+               end
+
+
+
+}
 
 
 
