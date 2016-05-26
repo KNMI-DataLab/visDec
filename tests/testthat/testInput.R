@@ -10,6 +10,3 @@ test_that("FileNameParser", {
 
   expect_equal_to_reference(ReadMORSensorData(sensorTestFile), "sensorOutput.rds")
 })
-
-expect_true(testRcode())
-
