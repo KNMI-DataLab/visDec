@@ -1,5 +1,7 @@
 library(visDec)
 
+context("Filename parsing")
+
 midnightFile <- "./Meetterrein_20151009_0000.jpg"
 standardFile <- "./Meetterrein_20151009_0610.jpg"
 sensorTestFile <- "./MOR_DeBilt_201510.txt"

@@ -13,6 +13,7 @@ Imports:
     imager,
     R.matlab,
     caret,
+    abind,
     tree
 License: LGPL
 LazyData: true

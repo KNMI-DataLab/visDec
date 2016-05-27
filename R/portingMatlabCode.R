@@ -51,45 +51,32 @@ importImage<-function(imageFile)
 
 #porting code of the get_dark_channel.m
 
-getDarkChannel<-function(image,winSize)
-{
-  library(doParallel)
+#' Obtains the dark channel
+#' @param image The image object
+#' @param winSize Should probably be renamed
+#' @export
+#' @importFrom imager pad extract_patches
+GetDarkChannel <- function(image, winSize) {
   library(tcltk)
-  dimImage<-dim(image)
-  m<-dimImage[1]
-  n<-dimImage[2]
-  pad_size<-floor(winSize/2)
-  print(dimImage)
-  test<-as.array(image)
-  plot(image)
+  dimImage <- dim(image)
+  m        <- dimImage[1]
+  n        <- dimImage[2]
+  pad_size <- floor(winSize/2)
 
-  padImage<-pad(image,axes="y",winSize)
-  padImage<-pad(image,axes="x",winSize)
-  darkChannel<-matrix(0,m,n)
-  counter<-0
+  padImage <- pad(image,axes="y",winSize) # I know it is in the matlab code but
+  # we should be watching out what it actually adds...
+  padImage <- pad(image,axes="x",winSize) # Here you just overwrite the previos
+  darkChannel <- matrix(0,m,n)
 
-  cl <- makeCluster(2)
-  registerDoParallel(cl)
+  grid <- as.matrix(expand.grid(m = seq.int(1, m, 1), n = seq.int(1, n, 1)))
+  winsize <- rep(winSize - 1, nrow(grid))
 
+  patches <- extract_patches(padImage, grid[, 1], grid[, 2], winsize, winsize)
 
-  #in case of performance issue might think of parellalizing it
-  #foreach(i=1:m,.packages='imager') %dopar% {
-    for(i in 1:m){
-      for(j in 1:n)
-    #test<-foreach(j=1:n, .packages='imager') %dopar%
-    {
-      #counter<-counter+1
-      #print(counter)
-
-      patch<-extract_patches(padImage,i,j,winSize-1,winSize-1)
-      #print(unlist(patch))
-      darkChannel[i,j]<-min(unlist(patch))
-    }
-    #darkChannel<-cbind(darkChannel,unlist(test))
-    #print(test)
-  }
-
-return(darkChannel)
+  darkChannel <- lapply(patches, min)
+  darkChannel <- vapply(patches, min, 1/2)
+  dim(darkChannel) <- c(m, n)
+  darkChannel
 }
 
 
@@ -187,8 +174,7 @@ getRadiance<-function(image,transmission,atmosphere)
 }
 
 
-getLaplacian<-function(image, trimapAll)
-{
+getLaplacian <- function(image, trimapAll) {
   dimImage<-dim(image)
   m<-dimImage[1]
   n<-dimImage[2]
@@ -220,65 +206,65 @@ getLaplacian<-function(image, trimapAll)
 
   len <- 0
 
-  for(k in 1:length(indices))
-  {
+  # for(k in 1:length(indices))
+  # {
+  #
+  # ind <- indices[k]
+  #
+  # i = ((ind-1) %% m) + 1
+  # j = floor((ind-1) / m) + 1
+  #
+  #
+  #
+  # mMin = max( 1, i - winRad )
+  # mMax = min( m, i + winRad )
+  # nMin = max( 1, j - winRad )
+  # nMax = min( n, j + winRad )
+  #
+  # winInds = indMat[ m_min : m_max, n_min : n_max]
+  # winInds = c(winInds)
+  #
+  # numNeigh = nrow(winInds)
+  #
 
-  ind <- indices[k]
-
-  i = ((ind-1) %% m) + 1
-  j = floor((ind-1) / m) + 1
-
-
-
-  mMin = max( 1, i - winRad )
-  mMax = min( m, i + winRad )
-  nMin = max( 1, j - winRad )
-  nMax = min( n, j + winRad )
-
-  winInds = indMat[ m_min : m_max, n_min : n_max]
-  winInds = c(winInds)
-
-  numNeigh = nrow(winInds)
-
-
-  ####################TILL HERE#############################################
-
-  win_image = image( m_min : m_max, n_min : n_max, : );
-  win_image = reshape( win_image, num_neigh, c );
-
-  win_mean = mean( win_image, 1 );
-
-  win_var = inv( (win_image' * win_image / num_neigh) - (win_mean' * win_mean) + (epsilon / num_neigh * eye(c) ) );
-
-  win_image = win_image - repmat( win_mean, num_neigh, 1 );
-
-  win_vals = ( 1 + win_image * win_var * win_image' ) / num_neigh;
-
-    sub_len = num_neigh*num_neigh;
-
-    win_inds = repmat(win_inds, 1, num_neigh);
-
-    row_inds(1+len: len+sub_len) = win_inds(:);
-
-    win_inds = win_inds';
-
-               col_inds(1+len: len+sub_len) = win_inds(:);
-
-               vals(1+len: len+sub_len) = win_vals(:);
-
-               len = len + sub_len;
-  }
-               end
-
-  A = sparse(row_inds(1:len),col_inds(1:len),vals(1:len),img_size,img_size);
-
-               D = spdiags(sum(A,2),0,n*m,n*m);
-
-               L = D - A;
-
-               end
-
-
+  # ####################TILL HERE#############################################
+  #
+  # win_image = image( m_min : m_max, n_min : n_max, : );
+  # win_image = reshape( win_image, num_neigh, c );
+  #
+  # win_mean = mean( win_image, 1 );
+  #
+  # win_var = inv( (win_image' * win_image / num_neigh) - (win_mean' * win_mean) + (epsilon / num_neigh * eye(c) ) );
+  #
+  # win_image = win_image - repmat( win_mean, num_neigh, 1 );
+  #
+  # win_vals = ( 1 + win_image * win_var * win_image' ) / num_neigh;
+  #
+  #   sub_len = num_neigh*num_neigh;
+  #
+  #   win_inds = repmat(win_inds, 1, num_neigh);
+  #
+  #   row_inds(1+len: len+sub_len) = win_inds(:);
+  #
+  #   win_inds = win_inds';
+  #
+  #              col_inds(1+len: len+sub_len) = win_inds(:);
+  #
+  #              vals(1+len: len+sub_len) = win_vals(:);
+  #
+  #              len = len + sub_len;
+  # }
+  #              end
+  #
+  # A = sparse(row_inds(1:len),col_inds(1:len),vals(1:len),img_size,img_size);
+  #
+  #              D = spdiags(sum(A,2),0,n*m,n*m);
+  #
+  #              L = D - A;
+  #
+  #              end
+  #
+  #
 
 }
 
