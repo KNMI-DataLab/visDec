@@ -55,26 +55,24 @@ importImage<-function(imageFile)
 #' @param image The image object
 #' @param winSize Should probably be renamed
 #' @export
-#' @importFrom imager pad extract_patches
+#' @importFrom imager pad extract_patches width height
 GetDarkChannel <- function(image, winSize) {
-  library(tcltk)
-  dimImage <- dim(image)
-  m        <- dimImage[1]
-  n        <- dimImage[2]
-  pad_size <- floor(winSize/2)
+  m <- width(image)
+  n <- height(image)
 
-  padImage <- pad(image,axes="y",winSize) # I know it is in the matlab code but
-  # we should be watching out what it actually adds...
-  padImage <- pad(image,axes="x",winSize) # Here you just overwrite the previos
-  darkChannel <- matrix(0,m,n)
+  # I know it is in the matlab code but we should check what it actually adds
+  padImage <- pad(image, axes="y", winSize)
+  padImage <- pad(image, axes="x", winSize) # Here you just overwrite the
+  # previous padImage probably use the following
+  # padSize  <- floor(winSize/2)
+  # padImage <- pad(image, padSize, "xy")
 
-  grid <- as.matrix(expand.grid(m = seq.int(1, m, 1), n = seq.int(1, n, 1)))
+  grid    <- expand.grid(width = 1:m, height = 1:n)
   winsize <- rep(winSize - 1, nrow(grid))
 
   patches <- extract_patches(padImage, grid[, 1], grid[, 2], winsize, winsize)
 
-  darkChannel <- lapply(patches, min)
-  darkChannel <- vapply(patches, min, 1/2)
+  darkChannel      <- vapply(patches, min, 1/2)
   dim(darkChannel) <- c(m, n)
   darkChannel
 }
