@@ -6,7 +6,7 @@
 #' @importFrom R.matlab readMat
 #' @importFrom tree tree
 #' @importFrom caret confusionMatrix
-classify<-function(){
+Classify<-function(){
   matObjLoad<-readMat("./inst/extdata/results_november_all_patch15.mat")
   dataStruct<-data.frame(matObjLoad$dataStruct)
   transmission<-dataStruct[1,]
@@ -40,7 +40,7 @@ classify<-function(){
 
 #' @importFrom imager load.image pad extract_patches
 #'
-importImage<-function(imageFile)
+ImportImage<-function(imageFile)
 {
   #imageFile = "/usr/people/pagani/development/fogVisibility/EHTW_201604071533.jpg"
   imageFile = "/usr/people/pagani/Pictures/index.png"
@@ -59,16 +59,12 @@ importImage<-function(imageFile)
 GetDarkChannel <- function(image, winSize) {
   m <- width(image)
   n <- height(image)
-
   # I know it is in the matlab code but we should check what it actually adds
   padSize  <- floor(winSize/2)
   padImage <- pad(image, padSize, "xy")
-
   grid    <- expand.grid(width = 1:m, height = 1:n)
   winsize <- rep(winSize - 1, nrow(grid))
-
   patches <- extract_patches(padImage, grid[, 1], grid[, 2], winsize, winsize)
-
   darkChannel      <- vapply(patches, min, 1/2)
   dim(darkChannel) <- c(m, n)
   darkChannel
@@ -78,113 +74,103 @@ GetDarkChannel <- function(image, winSize) {
 
 #porting code of the get_atmosphere.m
 
-#' @importFrom abind abind
+#' Obtains atmosphere
+#' @param image The image object
+#' @param darkChannel Image dark channel
+#' @importFrom imager pad extract_patches width height
+
 #'
-getAtmosphere<-function(image,darkChannel)
+GetAtmosphere <- function(image, darkChannel)
 {
-  dimImage<-dim(image)
-  m<-dimImage[1]
-  n<-dimImage[2]
-  nPixel<-m*n
-  nSearchPixels<-floor(nPixel*0.01)
-  darkVec<-matrix(darkChannel,nPixel,1)
-  imageVec<-matrix(image,nPixel,3)
-
-  sortedDark<-sort(darkVec,decreasing = TRUE,index.return=TRUE)
-
-  accumulator<-matrix(0,1,3)
-
-  for (k in 1:nPixel)
-  {
-    accumulator<-accumulator+imageVec[sortedDark$ix[k],1:3]
+  m <- width(image)
+  n <- height(image)
+  nPixel <- m * n
+  nSearchPixels <- floor(nPixel * 0.01)
+  darkVec       <- matrix(darkChannel, nPixel, 1)
+  imageVec      <- matrix(image, nPixel, 3)
+  sortedDark    <- sort(darkVec, decreasing = TRUE, index.return=TRUE)
+  accumulator   <- matrix(0,1,3)
+  for (k in 1:nPixel){
+    accumulator <- accumulator + imageVec[sortedDark$ix[k], 1:3]
   }
-
-  atmosphere<-accumulator/nSearchPixels
-
-  return(atmosphere)
+  atmosphere <- accumulator / nSearchPixels
+  atmosphere
 }
 
 
 #porting code of the get_transmission_estimate.m
 
+#' Obtains transmission
+#' @param image The image object
+#' @param atmosphere The image atmosphere
+#' @param omega
+#' @param winSize Window size
+#' @importFrom imager width height spectrum
 #' @importFrom abind abind
 #'
-getTransmissionEstimate<-function(image,atmosphere,omega,winSize)
+GetTransmissionEstimate <- function(image, atmosphere, omega, winSize)
 {
-  dimImage<-dim(image)
-  m<-dimImage[1]
-  n<-dimImage[2]
-  channels<-dimImage[4]
-  toFill<-array(atmosphere,dim = c(1,1,3))
-  repAtmosphere<-NULL
-  for(k in 1:channels)
-  {
-    temp<- array(toFill[k],dim = c(m,n,1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
-    print(temp)
-    repAtmosphere<-abind(repAtmosphere,temp,along = 4)
+  m <- width(image)
+  n <- height(image)
+  channels <- spectrum(image)
+  toFill <- array(atmosphere, dim = c(1, 1, 3))
+  repAtmosphere <- NULL
+  for(k in 1:channels){
+    temp <- array(toFill[k], dim = c(m, n, 1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
+    repAtmosphere <- abind(repAtmosphere, temp, along = 4)
   }
-  repAtmosphere<-unname(repAtmosphere)
-  transEst <- 1 - omega * getDarkChannel((as.array(image))/repAtmosphere, winSize);
-  return(transEst)
+  repAtmosphere <- unname(repAtmosphere)
+  transEst <- 1 - omega * GetDarkChannel((as.array(image)) / repAtmosphere, winSize)
+  transEst
 }
 
 
 #porting code of the get_radiance.m
-
-
-getRadiance<-function(image,transmission,atmosphere)
+#' Obtains transmission
+#' @param image The image object
+#' @param transmission The image transmission
+#' @param atmosphere The image atmosphere
+#' @importFrom imager width height spectrum
+#'
+GetRadiance<-function(image,transmission,atmosphere)
 {
-  dimImage<-dim(image)
-  m<-dimImage[1]
-  n<-dimImage[2]
-  channels<-dimImage[4]
-
-  toFill<-array(atmosphere,dim = c(1,1,3))
-  repAtmosphere<-NULL
-  maxTransmission<-NULL
-  for(k in 1:channels)
-  {
-    temp<- array(toFill[k],dim = c(m,n,1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
-    #print(temp)
-    repAtmosphere<-abind(repAtmosphere,temp,along = 4)
+  m <- width(image)
+  n <- height(image)
+  channels <- spectrum(image)
+  toFill <- array(atmosphere, dim = c(1, 1, 3))
+  repAtmosphere <- NULL
+  maxTransmission <- NULL
+  for(k in 1:channels){
+    temp <- array(toFill[k], dim = c(m, n, 1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
+    repAtmosphere <- abind(repAtmosphere,temp,along = 4)
   }
-  repAtmosphere<-unname(repAtmosphere)
-
-  maxValues<-pmax(transmission, 0.1)
-  for(k in 1:channels)
-  {
-    temp<- array(maxValues,dim = c(m,n,1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
-  #   print(temp)
-    maxTransmission<-abind(maxTransmission,temp,along = 4)
+  repAtmosphere <- unname(repAtmosphere)
+  maxValues <- pmax(transmission, 0.1)
+  for(k in 1:channels){
+    temp <- array(maxValues, dim = c(m, n, 1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
+    maxTransmission<-abind(maxTransmission, temp, along = 4)
   }
-
   maxTransmission<-unname(maxTransmission)
-
-  radiance <- ((as.array(image) - repAtmosphere)/maxTransmission) + repAtmosphere
-
-  radiance<-unname(radiance)
-  return(radiance)
-
-
+  radiance <- ((as.array(image) - repAtmosphere) / maxTransmission) + repAtmosphere
+  radiance <- unname(radiance)
+  radiance
 }
 
 
-getLaplacian <- function(image, trimapAll) {
-
-  dimImage <- dim(image)
-  m        <- dimImage[1]
-  n        <- dimImage[2]
-  channels <- dimImage[4]
+#porting code of the get_laplacian.m
+#' Obtains Lplacian of the image
+#' @importFrom ptw padzeros
+#' @importFrom Matrix diag
+#' @importFrom imager width height spectrum erode_square
+#'
+GetLaplacian <- function(image, trimapAll) {
+  m <- width(image)
+  n <- height(image)
+  channels <- spectrum(image)
   imgSize  <- m*n
   winRad   <- 1
   epsilon  <- 0.0000001
   maxNumNeigh  <- (winRad * 2 + 1) ^ 2
-
-
-  #for test purposes trimpAll
-  trimapAll <- array(0,dim=c(n,m,1,channels))
-
-
   #HERE I USE A SQUARE SHAPE TO ERODE AND NOT A DISK SHAPE AS IN THE ORIGINAL MATLAB CODE
   trimapAll    <- erode_square(trimapAll, winRad * 2 + 1)
   indMat       <- matrix(1:imgSize, m, n)
@@ -196,75 +182,70 @@ getLaplacian <- function(image, trimapAll) {
   vals         <- array(0, dim=c(maxNumVertex, 1))
 
   len <- 0
-
   for(k in 1:length(indices)){
-
   ind <- indices[k]
-
   i <- ((ind-1) %% m) + 1
   j <- floor((ind-1) / m) + 1
-
-
-
   mMin <- max( 1, i - winRad )
   mMax <- min( m, i + winRad )
   nMin <- max( 1, j - winRad )
   nMax <- min( n, j + winRad )
-
   winInds <- indMat[ mMin : mMax, nMin : nMax]
   winInds <- c(winInds)
-
-  numNeigh <- nrow(winInds)
-
-
-
+  numNeigh  <- nrow(winInds)
   win_image <- extract_patches(image, mMin, nMin, mMax - mMin, nMax - nMin)
-  arrayRep <- as.array(win_image)
+  arrayRep  <- as.array(win_image)
   win_image <- array(arrayRep, c(numNeigh, channels))
-
-  win_mean <- colMean(win_image)
-
-  win_var <- solve((t(win_image) * win_image / num_neigh) - (t(win_mean) * win_mean) + (epsilon / num_neigh * diag(channels) ) )
-
-
-  ####################TILL HERE#############################################
-
-
-
+  win_mean  <- colMeans(win_image)
+  win_var   <- solve((t(win_image) * win_image / num_neigh) - (t(win_mean) * win_mean) + (epsilon / num_neigh * diag(channels)))
   win_image <- win_image - rep(win_mean, c(num_neigh, 1))
-
-  win_vals <- ( 1 + win_image * win_var * t(win_image) ) / num_neigh;
-
-  sub_len <- num_neigh*num_neigh;
-
-  win_inds <- rep(win_inds, c(1, num_neigh))
-
+  win_vals  <- (1 + win_image * win_var * t(win_image)) / num_neigh
+  sub_len   <- num_neigh*num_neigh
+  win_inds  <- rep(win_inds, c(1, num_neigh))
   row_inds[1+len: len+sub_len] <- c(win_inds)
-  #
   win_inds <- t(win_inds)
-  #
-  col_inds[1+len: len+sub_len] <- c(win_inds)
-  #
-  vals[1+len: len+sub_len] <- c(win_vals)
-  #
+  col_inds[1 + len:len + sub_len] <- c(win_inds)
+  vals[1 + len:len + sub_len] <- c(win_vals)
   len <- len + sub_len;
   }
-  A = sparse(row_inds(1:len),col_inds(1:len),vals(1:len),img_size,img_size);
-  #
- # D = spdiags(sum(A,2),0,n*m,n*m);
-  #
-  L = D - A;
-
+  A <- sparseMatrix(i = row_inds(1:len), j = col_inds(1:len), x = vals(1:len), dims = c(img_size,img_size))
+  v <- rowSums(A)
+  tempArray <- as.vector(padzeros(v, n*m, side = 'right'))
+  D <- diag(tempArray, nrow = length(tempArray))
+  L <- D - A
 }
 
 
-
-
-
-
-
-
-
+#porting code of the dehaze.m
+#' Obtain the dehazed image
+#' @importFrom pracma mldivide
+#' @importFrom imager width height
+#'
+Dehaze <- function(image, omega, winSize, lambda)
+{
+if (missing(omega)){
+  omega <- 0.95
+}
+if (missing(win_size)){
+  win_size <- 15
+}
+if (missing(lambda)){
+  lambda <- 0.0001
+}
+m           <- width(image)
+n           <- height(image)
+darkChannel <- GetDarkChannel(image, winSize)
+atmosphere  <- getAtmosphere(image, darkChannel)
+transEst    <- GetTransmissionEstimate(image, atmosphere, omega, winSize)
+L           <- GetLaplacian(image, matrix(0,m,n))
+A           <- L + lambda * diag(dim(L))
+b           <- lambda * c(transEst)
+x           <- mldivide(A,b)
+dim(x)      <- c(m, n)
+transmission <- x
+radiance     <- getRadiance(image, transmission, atmosphere)
+radiance
+}
 
 
 
