@@ -61,11 +61,8 @@ GetDarkChannel <- function(image, winSize) {
   n <- height(image)
 
   # I know it is in the matlab code but we should check what it actually adds
-  padImage <- pad(image, axes="y", winSize)
-  padImage <- pad(image, axes="x", winSize) # Here you just overwrite the
-  # previous padImage probably use the following
-  # padSize  <- floor(winSize/2)
-  # padImage <- pad(image, padSize, "xy")
+  padSize  <- floor(winSize/2)
+  padImage <- pad(image, padSize, "xy")
 
   grid    <- expand.grid(width = 1:m, height = 1:n)
   winsize <- rep(winSize - 1, nrow(grid))
@@ -173,96 +170,90 @@ getRadiance<-function(image,transmission,atmosphere)
 
 
 getLaplacian <- function(image, trimapAll) {
-  dimImage<-dim(image)
-  m<-dimImage[1]
-  n<-dimImage[2]
-  channels<-dimImage[4]
+
+  dimImage <- dim(image)
+  m        <- dimImage[1]
+  n        <- dimImage[2]
+  channels <- dimImage[4]
+  imgSize  <- m*n
+  winRad   <- 1
+  epsilon  <- 0.0000001
+  maxNumNeigh  <- (winRad * 2 + 1) ^ 2
 
 
-  imgSize<-m*n
+  #for test purposes trimpAll
+  trimapAll <- array(0,dim=c(n,m,1,channels))
 
-  winRad<-1
-
-  epsilon<-0.0000001
-
-  maxNumNeigh<-(winRad*2+1)^2
 
   #HERE I USE A SQUARE SHAPE TO ERODE AND NOT A DISK SHAPE AS IN THE ORIGINAL MATLAB CODE
-  trimapAll<-erode_square(TrimapAll, winRad*2+1)
-
-  indMat<-matrix(1:imgSize, m, n)
-
-  indices <- which((1 - trimap_all) != 0);
-
-  numInd <- length(indices)
-
-  maxNumVertex <- maxNumNeigh * numInd;
-
-  rowInds <- array( 0, dim=c(maxNumVertex, 1 ))
-  colInds <- array( 0, dim=c(maxNumVertex, 1 ))
-  vals <- array( 0, dim=c(maxNumVertex, 1 ))
+  trimapAll    <- erode_square(trimapAll, winRad * 2 + 1)
+  indMat       <- matrix(1:imgSize, m, n)
+  indices      <- which((1 - trimapAll) != 0)
+  numInd       <- length(indices)
+  maxNumVertex <- maxNumNeigh * numInd
+  rowInds      <- array(0, dim=c(maxNumVertex, 1))
+  colInds      <- array(0, dim=c(maxNumVertex, 1))
+  vals         <- array(0, dim=c(maxNumVertex, 1))
 
   len <- 0
 
-  # for(k in 1:length(indices))
-  # {
-  #
-  # ind <- indices[k]
-  #
-  # i = ((ind-1) %% m) + 1
-  # j = floor((ind-1) / m) + 1
-  #
-  #
-  #
-  # mMin = max( 1, i - winRad )
-  # mMax = min( m, i + winRad )
-  # nMin = max( 1, j - winRad )
-  # nMax = min( n, j + winRad )
-  #
-  # winInds = indMat[ m_min : m_max, n_min : n_max]
-  # winInds = c(winInds)
-  #
-  # numNeigh = nrow(winInds)
-  #
+  for(k in 1:length(indices)){
 
-  # ####################TILL HERE#############################################
+  ind <- indices[k]
+
+  i <- ((ind-1) %% m) + 1
+  j <- floor((ind-1) / m) + 1
+
+
+
+  mMin <- max( 1, i - winRad )
+  mMax <- min( m, i + winRad )
+  nMin <- max( 1, j - winRad )
+  nMax <- min( n, j + winRad )
+
+  winInds <- indMat[ mMin : mMax, nMin : nMax]
+  winInds <- c(winInds)
+
+  numNeigh <- nrow(winInds)
+
+
+
+  win_image <- extract_patches(image, mMin, nMin, mMax - mMin, nMax - nMin)
+  arrayRep <- as.array(win_image)
+  win_image <- array(arrayRep, c(numNeigh, channels))
+
+  win_mean <- colMean(win_image)
+
+  win_var <- solve((t(win_image) * win_image / num_neigh) - (t(win_mean) * win_mean) + (epsilon / num_neigh * diag(channels) ) )
+
+
+  ####################TILL HERE#############################################
+
+
+
+  win_image <- win_image - rep(win_mean, c(num_neigh, 1))
+
+  win_vals <- ( 1 + win_image * win_var * t(win_image) ) / num_neigh;
+
+  sub_len <- num_neigh*num_neigh;
+
+  win_inds <- rep(win_inds, c(1, num_neigh))
+
+  row_inds[1+len: len+sub_len] <- c(win_inds)
   #
-  # win_image = image( m_min : m_max, n_min : n_max, : );
-  # win_image = reshape( win_image, num_neigh, c );
+  win_inds <- t(win_inds)
   #
-  # win_mean = mean( win_image, 1 );
+  col_inds[1+len: len+sub_len] <- c(win_inds)
   #
-  # win_var = inv( (win_image' * win_image / num_neigh) - (win_mean' * win_mean) + (epsilon / num_neigh * eye(c) ) );
+  vals[1+len: len+sub_len] <- c(win_vals)
   #
-  # win_image = win_image - repmat( win_mean, num_neigh, 1 );
+  len <- len + sub_len;
+  }
+  A = sparse(row_inds(1:len),col_inds(1:len),vals(1:len),img_size,img_size);
   #
-  # win_vals = ( 1 + win_image * win_var * win_image' ) / num_neigh;
+ # D = spdiags(sum(A,2),0,n*m,n*m);
   #
-  #   sub_len = num_neigh*num_neigh;
-  #
-  #   win_inds = repmat(win_inds, 1, num_neigh);
-  #
-  #   row_inds(1+len: len+sub_len) = win_inds(:);
-  #
-  #   win_inds = win_inds';
-  #
-  #              col_inds(1+len: len+sub_len) = win_inds(:);
-  #
-  #              vals(1+len: len+sub_len) = win_vals(:);
-  #
-  #              len = len + sub_len;
-  # }
-  #              end
-  #
-  # A = sparse(row_inds(1:len),col_inds(1:len),vals(1:len),img_size,img_size);
-  #
-  #              D = spdiags(sum(A,2),0,n*m,n*m);
-  #
-  #              L = D - A;
-  #
-  #              end
-  #
-  #
+  L = D - A;
 
 }
 
