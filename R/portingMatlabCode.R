@@ -57,8 +57,8 @@ ImportImage<-function(imageFile)
 #' @export
 #' @importFrom imager pad extract_patches width height
 GetDarkChannel <- function(image, winSize) {
-  m <- width(image)
-  n <- height(image)
+  n <- width(image)
+  m <- height(image)
   # I know it is in the matlab code but we should check what it actually adds
   padSize  <- floor(winSize/2)
   padImage <- pad(image, padSize, "xy")
@@ -82,8 +82,8 @@ GetDarkChannel <- function(image, winSize) {
 #'
 GetAtmosphere <- function(image, darkChannel)
 {
-  m <- width(image)
-  n <- height(image)
+  n <- width(image)
+  m <- height(image)
   nPixel <- m * n
   nSearchPixels <- floor(nPixel * 0.01)
   darkVec       <- matrix(darkChannel, nPixel, 1)
@@ -110,8 +110,8 @@ GetAtmosphere <- function(image, darkChannel)
 #'
 GetTransmissionEstimate <- function(image, atmosphere, omega, winSize)
 {
-  m <- width(image)
-  n <- height(image)
+  n <- width(image)
+  m <- height(image)
   channels <- spectrum(image)
   toFill <- array(atmosphere, dim = c(1, 1, 3))
   repAtmosphere <- NULL
@@ -134,8 +134,8 @@ GetTransmissionEstimate <- function(image, atmosphere, omega, winSize)
 #'
 GetRadiance<-function(image,transmission,atmosphere)
 {
-  m <- width(image)
-  n <- height(image)
+  n <- width(image)
+  m <- height(image)
   channels <- spectrum(image)
   toFill <- array(atmosphere, dim = c(1, 1, 3))
   repAtmosphere <- NULL
@@ -161,11 +161,12 @@ GetRadiance<-function(image,transmission,atmosphere)
 #' Obtains Lplacian of the image
 #' @importFrom ptw padzeros
 #' @importFrom Matrix diag
+#' @importFrom pracma repmat
 #' @importFrom imager width height spectrum erode_square
 #'
 GetLaplacian <- function(image, trimapAll) {
-  m <- width(image)
-  n <- height(image)
+  n <- width(image)
+  m <- height(image)
   channels <- spectrum(image)
   imgSize  <- m*n
   winRad   <- 1
@@ -192,23 +193,24 @@ GetLaplacian <- function(image, trimapAll) {
   nMax <- min( n, j + winRad )
   winInds <- indMat[ mMin : mMax, nMin : nMax]
   winInds <- c(winInds)
-  numNeigh  <- nrow(winInds)
-  win_image <- extract_patches(image, mMin, nMin, mMax - mMin, nMax - nMin)
-  arrayRep  <- as.array(win_image)
-  win_image <- array(arrayRep, c(numNeigh, channels))
-  win_mean  <- colMeans(win_image)
-  win_var   <- solve((t(win_image) * win_image / num_neigh) - (t(win_mean) * win_mean) + (epsilon / num_neigh * diag(channels)))
-  win_image <- win_image - rep(win_mean, c(num_neigh, 1))
-  win_vals  <- (1 + win_image * win_var * t(win_image)) / num_neigh
-  sub_len   <- num_neigh*num_neigh
-  win_inds  <- rep(win_inds, c(1, num_neigh))
-  row_inds[1+len: len+sub_len] <- c(win_inds)
-  win_inds <- t(win_inds)
-  col_inds[1 + len:len + sub_len] <- c(win_inds)
-  vals[1 + len:len + sub_len] <- c(win_vals)
-  len <- len + sub_len;
+  numNeigh  <- length(winInds)
+  winImage <- image[mMin:mMax, nMin:nMax, ,]
+  arrayRep  <- as.array(winImage)
+  winImage <- array(arrayRep, c(numNeigh, channels))
+  winMean  <- colMeans(winImage)
+  winMean  <- t(winMean)##REQUIRED FOR R IMPLEMENTATION OF VECTOR ROW AND COLUMN COMPARED TO MATLAB
+  winVar   <- solve((t(winImage) %*% winImage / numNeigh) - (t(winMean) %*% winMean) + (epsilon / numNeigh * diag(channels)))
+  winImage <- winImage - repmat(winMean, numNeigh, 1)
+  winVals  <- (1 + winImage %*% winVar %*% t(winImage)) %/% numNeigh
+  subLen   <- numNeigh%*%numNeigh
+  winInds  <- repmat(winInds, 1, numNeigh)
+  rowInds[1+len: len+subLen] <- c(winInds)
+  winInds <- t(winInds)
+  colInds[1 + len:len + subLen] <- c(winInds)
+  vals[1 + len:len + subLen] <- c(winVals)
+  len <- len + subLen;
   }
-  A <- sparseMatrix(i = row_inds(1:len), j = col_inds(1:len), x = vals(1:len), dims = c(img_size,img_size))
+  A <- sparseMatrix(i = rowInds(1:len), j = colInds(1:len), x = vals(1:len), dims = c(imgSize,imgSize))
   v <- rowSums(A)
   tempArray <- as.vector(padzeros(v, n*m, side = 'right'))
   D <- diag(tempArray, nrow = length(tempArray))
@@ -232,8 +234,8 @@ if (missing(win_size)){
 if (missing(lambda)){
   lambda <- 0.0001
 }
-m           <- width(image)
-n           <- height(image)
+n           <- width(image)
+m           <- height(image)
 darkChannel <- GetDarkChannel(image, winSize)
 atmosphere  <- getAtmosphere(image, darkChannel)
 transEst    <- GetTransmissionEstimate(image, atmosphere, omega, winSize)
