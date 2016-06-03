@@ -120,7 +120,9 @@ GetTransmissionEstimate <- function(image, atmosphere, omega, winSize)
     repAtmosphere <- abind(repAtmosphere, temp, along = 4)
   }
   repAtmosphere <- unname(repAtmosphere)
-  transEst <- 1 - omega * GetDarkChannel((as.array(image)) / repAtmosphere, winSize)
+  splittedImage<-channels(image)
+  #FIX THIS PART WITH IMAGE AND NOT ARRAY#########################################
+  transEst <- 1 - omega * GetDarkChannel(image / repAtmosphere, winSize)
   transEst
 }
 
