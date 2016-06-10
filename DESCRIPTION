@@ -12,6 +12,7 @@ Imports:
     data.table,
     imager,
     R.matlab,
+    matlab,
     caret,
     abind,
     tree,
