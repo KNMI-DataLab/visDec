@@ -184,11 +184,11 @@ GetRadiance<-function(image, transmission, atmosphere)
 #porting code of the get_laplacian.m
 #' Obtains Lplacian of the image
 #' @importFrom ptw padzeros
-#' @importFrom Matrix diag
+#' @importFrom Matrix diag rowSums
 #' @importFrom pracma repmat
 #' @importFrom imager width height spectrum erode_square
 #'
-GetLaplacian <- function(image, trimapAll) {
+GetLaplacian <- function(image) {
   m <- width(image)
   n <- height(image) # inverted to avoid confusion with matlab implementation
   channels <- spectrum(image)
@@ -197,9 +197,10 @@ GetLaplacian <- function(image, trimapAll) {
   epsilon  <- 0.0000001
   maxNumNeigh  <- (winRad * 2 + 1) ^ 2
   #HERE I USE A SQUARE SHAPE TO ERODE AND NOT A DISK SHAPE AS IN THE ORIGINAL MATLAB CODE
-  trimapAll    <- erode_square(trimapAll, winRad * 2 + 1)
+  #trimapAll    <- erode_square(trimapAll, winRad * 2 + 1)
   indMat       <- matrix(1:imgSize, m, n)
-  indices      <- which((1 - trimapAll) != 0)
+  #indices      <- which((1 - trimapAll) != 0)
+  indices      <- 1:(m*n)
   numInd       <- length(indices)
   maxNumVertex <- maxNumNeigh * numInd
   rowInds      <- NULL #array(0, dim=c(maxNumVertex, 1))
@@ -207,7 +208,7 @@ GetLaplacian <- function(image, trimapAll) {
   vals         <- NULL #array(0, dim=c(maxNumVertex, 1))
 
   len <- 0
-  for(k in 1:length(indices)){
+  for(k in 1:numInd){
   ind <- indices[k]
   i <- ((ind-1) %% m) + 1
   j <- floor((ind-1) / m) + 1
@@ -217,6 +218,7 @@ GetLaplacian <- function(image, trimapAll) {
   nMax <- min( n, j + winRad )
   winInds <- indMat[ mMin : mMax, nMin : nMax]
   winInds <- c(winInds)
+  #print(winInds)
   numNeigh  <- length(winInds)
   winImage <- image[mMin:mMax, nMin:nMax, ,]
   arrayRep  <- as.array(winImage)
@@ -227,7 +229,7 @@ GetLaplacian <- function(image, trimapAll) {
   winImage <- winImage - pracma::repmat(winMean, numNeigh, 1)
   winVals  <- (1 + winImage %*% winVar %*% t(winImage)) / numNeigh
   subLen   <- numNeigh%*%numNeigh
-  winInds  <- repmat(winInds, 1, numNeigh)
+  winInds  <- pracma::repmat(winInds, numNeigh, 1)
   #rowInds[1+len: len+subLen] <- c(winInds)
   rowInds <- c(rowInds, c(winInds))
   winInds <- t(winInds)
@@ -236,11 +238,13 @@ GetLaplacian <- function(image, trimapAll) {
   #vals[1 + len:len + subLen] <- c(winVals)
   vals <- c(vals, c(winVals))
   len <- len + subLen;
+  #print(k)
   }
-  A <- sparseMatrix(i = rowInds(1:len), j = colInds(1:len), x = vals(1:len), dims = c(imgSize,imgSize))
-  v <- rowSums(A)
-  tempArray <- as.vector(padzeros(v, n*m, side = 'right'))
-  D <- diag(tempArray, nrow = length(tempArray))
+  #index inverted EQUIRED FOR R IMPLEMENTATION OF VECTOR ROW AND COLUMN COMPARED TO MATLAB
+  A <- sparseMatrix(i = colInds[1:len], j = rowInds[1:len], x = vals[1:len], dims = c(imgSize,imgSize))
+  v <- Matrix::rowSums(A)
+  #tempArray <- as.vector(padzeros(v, n*m, side = 'right'))
+  D <- diag(v, nrow = length(v))
   L <- D - A
 }
 

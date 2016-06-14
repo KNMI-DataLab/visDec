@@ -2,9 +2,9 @@ context("MatLabCode")
 
 
 test_that("Same input same output", {
-  im <- imager::load.image("./forestResizedImage.jpg")
+  im <- imager::load.image("./10perSize.jpg")
 
-  matObjLoad <- R.matlab::readMat("../../inst/extdata/MatlabFiles/test/resizedPicture/dataResizedPicture.mat")
+  matObjLoad <- R.matlab::readMat("../../inst/extdata/MatlabFiles/test/10percPicture/10PercResults.mat")
 
 
   winSize <- 15
@@ -36,9 +36,12 @@ test_that("Same input same output", {
 
   n <- imager::width(im)
   m <- imager::height(im)
-  trimapAll <- array(0, c(n, m, 1, 3))#n and m inverted due to cimg representation
-  laplacian <- GetLaplacian(im, trimapAll)
-  # expect_equal_to_reference(laplacian, "laplacianReference.rds")
+  #trimapAll <- array(0, c(n, m, 1, 3))#n and m inverted due to cimg representation
+  laplacian <- GetLaplacian(im)
+  expect_equal_to_reference(laplacian, "laplacianReference.rds")
+  matrixMatLoadLaplacian <- matObjLoad$laplacian
+  expect_equal(laplacian, matrixMatLoadLaplacian)
+
   #lambda <- 0.0001
   #dehaze <- Dehaze(im, omega, winSize,lambda)
   #expect_equal_to_reference(dehaze, "dahazeReference.rds")
