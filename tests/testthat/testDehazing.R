@@ -45,6 +45,8 @@ test_that("Same input same output", {
   lambda <- 0.0001
   dehaze <- Dehaze(im, omega, winSize,lambda)
   expect_equal_to_reference(dehaze, "dehazeReference.rds")
+  dehaze2 <- Dehaze(im)
+  expect_equal(dehaze, dehaze2)
   # Still with refined transmission
   #expect_equal_to_reference(dehaze, "dahazeReference.rds")
   #matrixMatLoadDeHaze <- matObjLoad$result
