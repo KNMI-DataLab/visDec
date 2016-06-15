@@ -183,7 +183,6 @@ GetRadiance<-function(image, transmission, atmosphere)
 
 #porting code of the get_laplacian.m
 #' Obtains Lplacian of the image
-#' @importFrom ptw padzeros
 #' @importFrom Matrix diag rowSums
 #' @importFrom pracma repmat
 #' @importFrom imager width height spectrum erode_square
@@ -238,7 +237,7 @@ GetLaplacian <- function(image) {
   #vals[1 + len:len + subLen] <- c(winVals)
   vals <- c(vals, c(winVals))
   len <- len + subLen;
-  #print(k)
+  #print(winVals)
   }
   #index inverted EQUIRED FOR R IMPLEMENTATION OF VECTOR ROW AND COLUMN COMPARED TO MATLAB
   A <- sparseMatrix(i = colInds[1:len], j = rowInds[1:len], x = vals[1:len], dims = c(imgSize,imgSize))
@@ -246,6 +245,7 @@ GetLaplacian <- function(image) {
   #tempArray <- as.vector(padzeros(v, n*m, side = 'right'))
   D <- diag(v, nrow = length(v))
   L <- D - A
+  #return(L)
 }
 
 
@@ -259,8 +259,8 @@ Dehaze <- function(image, omega, winSize, lambda)
 if (missing(omega)){
   omega <- 0.95
 }
-if (missing(win_size)){
-  win_size <- 15
+if (missing(winSize)){
+  winSize <- 15
 }
 if (missing(lambda)){
   lambda <- 0.0001
@@ -268,15 +268,15 @@ if (missing(lambda)){
 n           <- width(image)
 m           <- height(image)
 darkChannel <- GetDarkChannel(image, winSize)
-atmosphere  <- getAtmosphere(image, darkChannel)
+atmosphere  <- GetAtmosphere(image, darkChannel)
 transEst    <- GetTransmissionEstimate(image, atmosphere, omega, winSize)
-L           <- GetLaplacian(image, matrix(0,m,n))
-A           <- L + lambda * diag(dim(L))
+L           <- GetLaplacian(image)
+A           <- L + lambda * diag(nrow = dim(L))
 b           <- lambda * c(transEst)
-x           <- mldivide(A,b)
+x           <- mldivide(as.matrix(A),b)
 dim(x)      <- c(m, n)
 transmission <- x
-radiance     <- getRadiance(image, transmission, atmosphere)
+radiance     <- GetRadiance(image, transmission, atmosphere)
 radiance
 }
 

@@ -4,7 +4,7 @@ context("MatLabCode")
 test_that("Same input same output", {
   im <- imager::load.image("./10perSize.jpg")
 
-  matObjLoad <- R.matlab::readMat("../../inst/extdata/MatlabFiles/test/10percPicture/10PercResults.mat")
+  matObjLoad <- R.matlab::readMat("../../inst/extdata/MatlabFiles/test/10percPicture/10PercResultsV3.mat")
 
 
   winSize <- 15
@@ -42,7 +42,12 @@ test_that("Same input same output", {
   matrixMatLoadLaplacian <- matObjLoad$laplacian
   expect_equal(laplacian, matrixMatLoadLaplacian)
 
-  #lambda <- 0.0001
-  #dehaze <- Dehaze(im, omega, winSize,lambda)
-  #expect_equal_to_reference(dehaze, "dahazeReference.rds")
+  lambda <- 0.0001
+  dehaze <- Dehaze(im, omega, winSize,lambda)
+  expect_equal_to_reference(dehaze, "dahazeReference.rds")
+  matrixMatLoadDeHaze <- matObjLoad$result
+  #drop the temporal (z) dimension
+  expect_equal(drop(dehaze), matrixMatLoadDeHaze)
+
+
 })
