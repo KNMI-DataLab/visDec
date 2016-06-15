@@ -6,6 +6,7 @@
 #' @importFrom R.matlab readMat
 #' @importFrom tree tree
 #' @importFrom caret confusionMatrix
+#' @importFrom stats predict
 Classify<-function(){
   matObjLoad<-readMat("./inst/extdata/results_november_all_patch15.mat")
   dataStruct<-data.frame(matObjLoad$dataStruct)
@@ -118,10 +119,8 @@ GetAtmosphere <- function(image, darkChannel)
 #porting code of the get_transmission_estimate.m
 
 #' Obtains transmission
-#' @param image The image object
+#' @inheritParams Dehaze
 #' @param atmosphere The image atmosphere
-#' @param omega
-#' @param winSize Window size
 #' @importFrom imager width height spectrum
 #' @importFrom abind abind
 #'
@@ -182,12 +181,15 @@ GetRadiance<-function(image, transmission, atmosphere)
 
 
 #porting code of the get_laplacian.m
-#' Obtains Lplacian of the image
+#' Obtains Matting Laplacian of the image
+#' @inheritParams Dehaze
 #' @importFrom Matrix diag rowSums
 #' @importFrom pracma repmat
 #' @importFrom imager width height spectrum erode_square
+#' @importFrom Matrix sparseMatrix
+#' @references \url{http://www.wisdom.weizmann.ac.il/~levina/papers/Matting-Levin-Lischinski-Weiss-CVPR06.pdf}
 #'
-GetLaplacian <- function(image) {
+GetMattingLaplacian <- function(image) {
   m <- width(image)
   n <- height(image) # inverted to avoid confusion with matlab implementation
   channels <- spectrum(image)
@@ -248,36 +250,47 @@ GetLaplacian <- function(image) {
   #return(L)
 }
 
+#' Refines transmission estimate via matting Laplacian
+#' @inheritParams Dehaze
+#' @param transmission Initial transmission estimate
+#' @param lambda Regularization parameter for the soft matting
+#' @importFrom pracma mldivide
+#' @importFrom imager width height
+RefineTransmissionEstimate <- function(image, transmission, lambda) {
+  n           <- width(image)
+  m           <- height(image)
+  L           <- GetMattingLaplacian(image)
+  A           <- L + lambda * diag(nrow = dim(L))
+  b           <- lambda * c(transmission)
+  x           <- mldivide(as.matrix(A),b)
+  dim(x)      <- c(m, n)
+  x
+}
 
 #porting code of the dehaze.m
 #' Obtain the dehazed image
-#' @importFrom pracma mldivide
-#' @importFrom imager width height
+#' @param image Image
+#' @param omega Constant for aerial perspective
+#' @param lambda Regularization parameter for soft matting
+#' @param winSize Should probably be renamed to patch
+#' @export
 #'
-Dehaze <- function(image, omega, winSize, lambda)
-{
-if (missing(omega)){
-  omega <- 0.95
-}
-if (missing(winSize)){
-  winSize <- 15
-}
-if (missing(lambda)){
-  lambda <- 0.0001
-}
-n           <- width(image)
-m           <- height(image)
-darkChannel <- GetDarkChannel(image, winSize)
-atmosphere  <- GetAtmosphere(image, darkChannel)
-transEst    <- GetTransmissionEstimate(image, atmosphere, omega, winSize)
-L           <- GetLaplacian(image)
-A           <- L + lambda * diag(nrow = dim(L))
-b           <- lambda * c(transEst)
-x           <- mldivide(as.matrix(A),b)
-dim(x)      <- c(m, n)
-transmission <- x
-radiance     <- GetRadiance(image, transmission, atmosphere)
-radiance
+Dehaze <- function(image, omega, winSize, lambda) {
+  if (missing(omega)) {
+    omega <- 0.95
+  }
+  if (missing(winSize)) {
+    winSize <- 15
+  }
+  if (missing(lambda)) {
+    lambda <- 0.0001
+  }
+  darkChannel  <- GetDarkChannel(image, winSize)
+  atmosphere   <- GetAtmosphere(image, darkChannel)
+  transmission <- GetTransmissionEstimate(image, atmosphere, omega, winSize)
+  #transmission <- RefineTransmissionEstimate(image, transmission, lambda)
+  radiance     <- GetRadiance(image, transmission, atmosphere)
+  radiance
 }
 
 
