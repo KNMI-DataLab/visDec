@@ -12,8 +12,13 @@ Imports:
     data.table,
     imager,
     R.matlab,
+    matlab,
     caret,
-    tree
+    abind,
+    tree,
+    Matrix,
+    pracma,
+    ptw
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1

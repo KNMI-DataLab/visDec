@@ -22,6 +22,7 @@ knitr::opts_chunk$set(
 library(data.table)
 library(visDec)
 library(ggplot2)
+library(data.table)
 library(doParallel)
 registerDoParallel(cores=2)
 library(imager)
@@ -69,6 +70,7 @@ setkey(sensorData, dateTime)
 setkey(imageSummary, dateTime)
 imageSummary <- merge(imageSummary, sensorData)
 imageSummary[, medianMOR := median(c(FS261, TMM261, FS260), na.rm=TRUE), by = dateTime]
+# imageSummary %>% .[ ,medianMOR := median(c(FS261, TMM261, FS260), na.rm =TRUE), by = dateTime]
 ```
 
 ### Time series
