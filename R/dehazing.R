@@ -128,92 +128,92 @@ GetRadiance<-function(image, transmission, atmosphere)
 }
 
 
-#porting code of the get_laplacian.m
-#' Obtains Matting Laplacian of the image
-#' @inheritParams Dehaze
-#' @importFrom Matrix diag rowSums
-#' @importFrom pracma repmat
-#' @importFrom imager width height spectrum erode_square
-#' @importFrom Matrix sparseMatrix
-#' @references \url{http://www.wisdom.weizmann.ac.il/~levina/papers/Matting-Levin-Lischinski-Weiss-CVPR06.pdf}
-#'
-GetMattingLaplacian <- function(image) {
-  m <- width(image)
-  n <- height(image) # inverted to avoid confusion with matlab implementation
-  channels <- spectrum(image)
-  imgSize  <- m*n
-  winRad   <- 1
-  epsilon  <- 0.0000001
-  maxNumNeigh  <- (winRad * 2 + 1) ^ 2
-  #HERE I USE A SQUARE SHAPE TO ERODE AND NOT A DISK SHAPE AS IN THE ORIGINAL MATLAB CODE
-  #trimapAll    <- erode_square(trimapAll, winRad * 2 + 1)
-  indMat       <- matrix(1:imgSize, m, n)
-  #indices      <- which((1 - trimapAll) != 0)
-  indices      <- 1:(m*n)
-  numInd       <- length(indices)
-  maxNumVertex <- maxNumNeigh * numInd
-  rowInds      <- NULL #array(0, dim=c(maxNumVertex, 1))
-  colInds      <- NULL #array(0, dim=c(maxNumVertex, 1))
-  vals         <- NULL #array(0, dim=c(maxNumVertex, 1))
-
-  len <- 0
-  for(k in 1:numInd){
-  ind <- indices[k]
-  i <- ((ind-1) %% m) + 1
-  j <- floor((ind-1) / m) + 1
-  mMin <- max( 1, i - winRad )
-  mMax <- min( m, i + winRad )
-  nMin <- max( 1, j - winRad )
-  nMax <- min( n, j + winRad )
-  winInds <- indMat[ mMin : mMax, nMin : nMax]
-  winInds <- c(winInds)
-  #print(winInds)
-  numNeigh  <- length(winInds)
-  winImage <- image[mMin:mMax, nMin:nMax, ,]
-  arrayRep  <- as.array(winImage)
-  winImage <- array(arrayRep, c(numNeigh, channels))
-  winMean  <- colMeans(winImage)
-  winMean  <- t(winMean)##REQUIRED FOR R IMPLEMENTATION OF VECTOR ROW AND COLUMN COMPARED TO MATLAB
-  winVar   <- solve((t(winImage) %*% winImage / numNeigh) - (t(winMean) %*% winMean) + (epsilon / numNeigh * diag(channels)))
-  winImage <- winImage - pracma::repmat(winMean, numNeigh, 1)
-  winVals  <- (1 + winImage %*% winVar %*% t(winImage)) / numNeigh
-  subLen   <- numNeigh%*%numNeigh
-  winInds  <- pracma::repmat(winInds, numNeigh, 1)
-  #rowInds[1+len: len+subLen] <- c(winInds)
-  rowInds <- c(rowInds, c(winInds))
-  winInds <- t(winInds)
-  #colInds[1 + len:len + subLen] <- c(winInds)
-  colInds <- c(colInds, c(winInds))
-  #vals[1 + len:len + subLen] <- c(winVals)
-  vals <- c(vals, c(winVals))
-  len <- len + subLen;
-  #print(winVals)
-  }
-  #index inverted EQUIRED FOR R IMPLEMENTATION OF VECTOR ROW AND COLUMN COMPARED TO MATLAB
-  A <- sparseMatrix(i = colInds[1:len], j = rowInds[1:len], x = vals[1:len], dims = c(imgSize,imgSize))
-  v <- Matrix::rowSums(A)
-  #tempArray <- as.vector(padzeros(v, n*m, side = 'right'))
-  D <- diag(v, nrow = length(v))
-  L <- D - A
-  #return(L)
-}
-
-#' Refines transmission estimate via matting Laplacian
-#' @inheritParams Dehaze
-#' @param transmission Initial transmission estimate
-#' @param lambda Regularization parameter for the soft matting
-#' @importFrom pracma mldivide
-#' @importFrom imager width height
-RefineTransmissionEstimate <- function(image, transmission, lambda) {
-  n           <- width(image)
-  m           <- height(image)
-  L           <- GetMattingLaplacian(image)
-  A           <- L + lambda * diag(nrow = dim(L))
-  b           <- lambda * c(transmission)
-  x           <- mldivide(as.matrix(A),b)
-  dim(x)      <- c(m, n)
-  x
-}
+# #porting code of the get_laplacian.m
+# #' Obtains Matting Laplacian of the image
+# #' @inheritParams Dehaze
+# #' @importFrom Matrix diag rowSums
+# #' @importFrom pracma repmat
+# #' @importFrom imager width height spectrum erode_square
+# #' @importFrom Matrix sparseMatrix
+# #' @references \url{http://www.wisdom.weizmann.ac.il/~levina/papers/Matting-Levin-Lischinski-Weiss-CVPR06.pdf}
+# #'
+# GetMattingLaplacian <- function(image) {
+#   m <- width(image)
+#   n <- height(image) # inverted to avoid confusion with matlab implementation
+#   channels <- spectrum(image)
+#   imgSize  <- m*n
+#   winRad   <- 1
+#   epsilon  <- 0.0000001
+#   maxNumNeigh  <- (winRad * 2 + 1) ^ 2
+#   #HERE I USE A SQUARE SHAPE TO ERODE AND NOT A DISK SHAPE AS IN THE ORIGINAL MATLAB CODE
+#   #trimapAll    <- erode_square(trimapAll, winRad * 2 + 1)
+#   indMat       <- matrix(1:imgSize, m, n)
+#   #indices      <- which((1 - trimapAll) != 0)
+#   indices      <- 1:(m*n)
+#   numInd       <- length(indices)
+#   maxNumVertex <- maxNumNeigh * numInd
+#   rowInds      <- NULL #array(0, dim=c(maxNumVertex, 1))
+#   colInds      <- NULL #array(0, dim=c(maxNumVertex, 1))
+#   vals         <- NULL #array(0, dim=c(maxNumVertex, 1))
+# 
+#   len <- 0
+#   for(k in 1:numInd){
+#   ind <- indices[k]
+#   i <- ((ind-1) %% m) + 1
+#   j <- floor((ind-1) / m) + 1
+#   mMin <- max( 1, i - winRad )
+#   mMax <- min( m, i + winRad )
+#   nMin <- max( 1, j - winRad )
+#   nMax <- min( n, j + winRad )
+#   winInds <- indMat[ mMin : mMax, nMin : nMax]
+#   winInds <- c(winInds)
+#   #print(winInds)
+#   numNeigh  <- length(winInds)
+#   winImage <- image[mMin:mMax, nMin:nMax, ,]
+#   arrayRep  <- as.array(winImage)
+#   winImage <- array(arrayRep, c(numNeigh, channels))
+#   winMean  <- colMeans(winImage)
+#   winMean  <- t(winMean)##REQUIRED FOR R IMPLEMENTATION OF VECTOR ROW AND COLUMN COMPARED TO MATLAB
+#   winVar   <- solve((t(winImage) %*% winImage / numNeigh) - (t(winMean) %*% winMean) + (epsilon / numNeigh * diag(channels)))
+#   winImage <- winImage - pracma::repmat(winMean, numNeigh, 1)
+#   winVals  <- (1 + winImage %*% winVar %*% t(winImage)) / numNeigh
+#   subLen   <- numNeigh%*%numNeigh
+#   winInds  <- pracma::repmat(winInds, numNeigh, 1)
+#   #rowInds[1+len: len+subLen] <- c(winInds)
+#   rowInds <- c(rowInds, c(winInds))
+#   winInds <- t(winInds)
+#   #colInds[1 + len:len + subLen] <- c(winInds)
+#   colInds <- c(colInds, c(winInds))
+#   #vals[1 + len:len + subLen] <- c(winVals)
+#   vals <- c(vals, c(winVals))
+#   len <- len + subLen;
+#   #print(winVals)
+#   }
+#   #index inverted EQUIRED FOR R IMPLEMENTATION OF VECTOR ROW AND COLUMN COMPARED TO MATLAB
+#   A <- sparseMatrix(i = colInds[1:len], j = rowInds[1:len], x = vals[1:len], dims = c(imgSize,imgSize))
+#   v <- Matrix::rowSums(A)
+#   #tempArray <- as.vector(padzeros(v, n*m, side = 'right'))
+#   D <- diag(v, nrow = length(v))
+#   L <- D - A
+#   #return(L)
+# }
+# 
+# #' Refines transmission estimate via matting Laplacian
+# #' @inheritParams Dehaze
+# #' @param transmission Initial transmission estimate
+# #' @param lambda Regularization parameter for the soft matting
+# #' @importFrom pracma mldivide
+# #' @importFrom imager width height
+# RefineTransmissionEstimate <- function(image, transmission, lambda) {
+#   n           <- width(image)
+#   m           <- height(image)
+#   L           <- GetMattingLaplacian(image)
+#   A           <- L + lambda * diag(nrow = dim(L))
+#   b           <- lambda * c(transmission)
+#   x           <- mldivide(as.matrix(A),b)
+#   dim(x)      <- c(m, n)
+#   x
+# }
 
 #porting code of the dehaze.m
 #' Obtain the dehazed image
