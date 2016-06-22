@@ -7,6 +7,7 @@
 #' @importFrom imager pad extract_patches width height channels as.cimg
 #' @importFrom matlab padarray
 #' @importFrom abind abind
+#' @export
 GetDarkChannel <- function(image, winSize) {
   m <- width(image)
   n <- height(image)
@@ -44,6 +45,7 @@ GetDarkChannel <- function(image, winSize) {
 #' @param image The image object
 #' @param darkChannel Image dark channel
 #' @importFrom imager pad extract_patches width height
+#' @export
 
 #'
 GetAtmosphere <- function(image, darkChannel)
@@ -71,6 +73,7 @@ GetAtmosphere <- function(image, darkChannel)
 #' @param atmosphere The image atmosphere
 #' @importFrom imager width height spectrum
 #' @importFrom abind abind
+#' @export
 #'
 GetTransmissionEstimate <- function(image, atmosphere, omega, winSize)
 {
@@ -102,6 +105,7 @@ GetTransmissionEstimate <- function(image, atmosphere, omega, winSize)
 #' @param transmission The image transmission
 #' @param atmosphere The image atmosphere
 #' @importFrom imager width height spectrum
+#' @export
 #'
 GetRadiance<-function(image, transmission, atmosphere)
 {
@@ -155,7 +159,7 @@ GetRadiance<-function(image, transmission, atmosphere)
 #   rowInds      <- NULL #array(0, dim=c(maxNumVertex, 1))
 #   colInds      <- NULL #array(0, dim=c(maxNumVertex, 1))
 #   vals         <- NULL #array(0, dim=c(maxNumVertex, 1))
-# 
+#
 #   len <- 0
 #   for(k in 1:numInd){
 #   ind <- indices[k]
@@ -197,7 +201,7 @@ GetRadiance<-function(image, transmission, atmosphere)
 #   L <- D - A
 #   #return(L)
 # }
-# 
+#
 # #' Refines transmission estimate via matting Laplacian
 # #' @inheritParams Dehaze
 # #' @param transmission Initial transmission estimate
