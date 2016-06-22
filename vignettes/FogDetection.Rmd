@@ -26,6 +26,7 @@ library(data.table)
 library(doParallel)
 registerDoParallel(cores=2)
 library(imager)
+library(changepoint)
 ```
 
 ### Computing basis image statistics
@@ -47,14 +48,23 @@ detect.edges <- function(im,sigma=1) {
 
 detect.edges(subim(load.image(filenames[75]), y > 16)) %>% sqrt %>% plot
 
+plot(subim(load.image(filenames[41]), y > 16))
+hazeFactorExampleFog   <- GetHorizAvgTrans(subim(load.image(filenames[41]), y > 16)) %>% plot(, main = "Horizontal averaged transmission - Fog condition")
+plot(subim(load.image(filenames[58]), y > 16))
+hazeFactorExampleNoFog <- GetHorizAvgTrans(subim(load.image(filenames[58]), y > 16)) %>% plot(, main = "Horizontal averaged transmission - No fog condition")
+
+
 imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
   fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
   im <- subim(load.image(file), y > 16) #[, -(1 :17), ,]
   #imGradient <- get_gradient(im, "xy", scheme = 2L)
   data.table(name = fileInformation$name,
              dateTime = fileInformation$dateTime,
-             meanEdge = detect.edges(im, 3) %>% sqrt %>% mean
+             meanEdge = detect.edges(im, 3) %>% sqrt %>% mean,
+             changePoint = cpts(cpt.meanvar(GetHorizAvgTrans(im)))
   )
+  #hazeFactor <- GetHorizAvgTrans(im)
+  #print(hazeFactor)
 }
 ```
 
@@ -107,6 +117,7 @@ ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y =
 #ggplot(imageSummary, aes(x = log(FS261), y = transmission)) + geom_point() + geom_smooth(method="lm") + geom_quantile(quantiles=0.5, col = 2)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(FS261), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = changePoint, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ```
 
 <!--
