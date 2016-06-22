@@ -4,7 +4,7 @@
 #' @param image The image object
 #' @param winSize Should probably be renamed
 #' @export
-#' @importFrom imager pad extract_patches width height channels as.cimg
+#' @importFrom imager pad extract_patches_min width height channels as.cimg
 #' @importFrom matlab padarray
 #' @importFrom abind abind
 #' @export
@@ -31,8 +31,7 @@ GetDarkChannel <- function(image, winSize) {
   grid    <- expand.grid(width = 1:m, height = 1:n)
   winsize <- rep(winSize - 1, nrow(grid))
   offset  <- padSize - 1 #in cimg the patches are extracted from the center of the patch itself. Matlab extracts from top-left corner
-  patches <- extract_patches(paddedImage, grid[, 1] + offset, grid[, 2] + offset, winsize, winsize)
-  darkChannel <- vapply(patches, min, 1)
+  darkChannel <- extract_patches_min(paddedImage, grid[, 1] + offset, grid[, 2] + offset, winsize, winsize)
   dim(darkChannel) <- c(m, n)
   darkChannel
 }
@@ -44,7 +43,7 @@ GetDarkChannel <- function(image, winSize) {
 #' Obtains atmosphere
 #' @param image The image object
 #' @param darkChannel Image dark channel
-#' @importFrom imager pad extract_patches width height
+#' @importFrom imager pad width height
 #' @export
 
 #'
