@@ -61,7 +61,7 @@ imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
   data.table(name = fileInformation$name,
              dateTime = fileInformation$dateTime,
              meanEdge = detect.edges(im, 3) %>% sqrt %>% mean,
-             changePoint = cpts(cpt.meanvar(GetHorizAvgTrans(im)))
+             changePoint = cpts(cpt.mean(GetHorizAvgTrans(im), penalty = "None"))
   )
   #hazeFactor <- GetHorizAvgTrans(im)
   #print(hazeFactor)

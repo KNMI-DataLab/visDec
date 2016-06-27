@@ -54,4 +54,8 @@ test_that("Same input same output", {
   #expect_equal(drop(dehaze), matrixMatLoadDeHaze)
 
 
+  avgHorizTrans <- GetHorizAvgTrans(im, winSize, omega, lambda)
+  expect_equal_to_reference(avgHorizTrans, "avrHorizTransReference.rds")
+
+
 })
