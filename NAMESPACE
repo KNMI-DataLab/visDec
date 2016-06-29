@@ -3,6 +3,7 @@
 export(Dehaze)
 export(FileNameParser)
 export(GetDarkChannel)
+export(GetHorizAvgTrans)
 export(ReadMORSensorData)
 import(data.table)
 importFrom(abind,abind)
