@@ -11,27 +11,18 @@ test_that("Same input same output", {
 
   darkChannel <- GetDarkChannel(im, winSize)
   expect_equal_to_reference(darkChannel, "darkChannelReference.rds")
-  #matrixMatLoadDarkChannel <- matObjLoad$darkChannel
-  #expect_equal(darkChannel, matrixMatLoadDarkChannel)
 
   atmosphere <- GetAtmosphere(im, darkChannel)
   expect_equal_to_reference(atmosphere, "atmosphereReference.rds")
-  #matrixMatLoadAtmosphere <- matObjLoad$atmosphere
-  #expect_equal(atmosphere, matrixMatLoadAtmosphere)
 
 
   omega <- 0.95
   transmissionEst <- GetTransmissionEstimate(im, atmosphere, omega, winSize)
   expect_equal_to_reference(transmissionEst, "transmissionEstReference.rds")
-  #matrixMatLoadTransmission <- matObjLoad$transmission
-  #expect_equal(transmissionEst, matrixMatLoadTransmission)
 
 
   radiance <- GetRadiance(im, transmissionEst, atmosphere)
   expect_equal_to_reference(radiance, "radianceReference.rds")
-  #matrixMatLoadRadiance <- matObjLoad$radiance
-  ##drop the temporal (z) dimension
-  #expect_equal(drop(radiance), matrixMatLoadRadiance)
 
 
   #n <- imager::width(im)
