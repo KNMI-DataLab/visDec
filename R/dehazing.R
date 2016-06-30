@@ -1,5 +1,26 @@
 #porting code of the get_dark_channel.m
 
+GetPaddedImage <- function(image, padSize) {
+  channels    <- channels(image, drop = FALSE)
+  listArray   <- lapply(channels, as.array)
+  listArray   <- lapply(listArray, drop)
+  padded      <- lapply(listArray, padarray, padSize, padval = Inf,
+                        direction = "both")
+  padded      <- lapply(padded,
+                        function(v) padarray(t(v),padSize, padval = Inf,
+                                             direction = "both"))
+  padded      <- lapply(padded, t)
+  arrayFormat <- as.array(padded)
+  arrayFormat <- abind(arrayFormat, along = 3)
+  arrayFormat <- abind(arrayFormat, along = 4)
+  dimnames(arrayFormat) <- NULL
+  paddedImage <- aperm(arrayFormat, c(1, 2, 4, 3))
+  as.cimg(paddedImage)
+  # padImage <- pad(as.array(image), 2*padSize, axes = "xy", pos = -1, val = 100)
+  # padarray(image, padSize, padval = Inf, direction = "both")
+  # paddedImage <- pad(image, padSize, axes = "xy", pos = 0, val = Inf)
+}
+
 #' Obtains the dark channel
 #' @param image The image object
 #' @param winSize Should probably be renamed
@@ -11,27 +32,14 @@
 GetDarkChannel <- function(image, winSize) {
   m <- width(image)
   n <- height(image)
-  # I know it is in the matlab code but we should check what it actually adds
-  padSize   <- floor(winSize/2)
-  channels  <- channels(image, drop = FALSE)
-  listArray <- lapply(channels, as.array)
-  listArray <- lapply(listArray, drop)
-  padded    <- lapply(listArray, padarray, padSize, padval = Inf, direction = "both")
-  padded    <- lapply(padded, function(v) padarray(t(v),padSize, padval = Inf, direction = "both"))
-  padded    <- lapply(padded, t)
-  arrayFormat <- as.array(padded)
-  arrayFormat <- abind(arrayFormat, along = 3)
-  arrayFormat <- abind(arrayFormat, along = 4)
-  dimnames(arrayFormat) <- NULL
-  paddedImage <- aperm(arrayFormat, c(1, 2, 4, 3))
-  paddedImage <- as.cimg(paddedImage)
-  #padImage <- pad(as.array(image), 2*padSize, axes = "xy", pos = -1, val = 100)
-  #padarray(image, padSize, padval = Inf, direction = "both")
-  #padImage <- pad(padImage, padSize, axes = "xy", pos = 1, val = 100)
-  grid    <- expand.grid(width = 1:m, height = 1:n)
-  winsize <- rep(winSize - 1, nrow(grid))
-  offset  <- padSize - 1 #in cimg the patches are extracted from the center of the patch itself. Matlab extracts from top-left corner
-  darkChannel <- extract_patches_min(paddedImage, grid[, 1] + offset, grid[, 2] + offset, winsize, winsize)
+  padSize     <- floor(winSize/2)
+  # What does the padding add to the functionality?
+  padIm            <- GetPaddedImage(image, padSize)
+  grid             <- expand.grid(width = 1:m, height = 1:n)
+  winsize          <- rep(winSize - 1, nrow(grid))
+  offset           <- padSize - 1
+  darkChannel      <- extract_patches_min(padIm, grid[, 1] + offset,
+                                          grid[, 2] + offset, winsize, winsize)
   dim(darkChannel) <- c(m, n)
   darkChannel
 }
@@ -46,8 +54,7 @@ GetDarkChannel <- function(image, winSize) {
 #' @importFrom imager pad extract_patches width height
 #' @export
 #'
-GetAtmosphere <- function(image, darkChannel)
-{
+GetAtmosphere <- function(image, darkChannel) {
   n <- width(image)
   m <- height(image)
   nPixel <- m * n
@@ -73,8 +80,7 @@ GetAtmosphere <- function(image, darkChannel)
 #' @importFrom abind abind
 #' @export
 #'
-GetTransmissionEstimate <- function(image, atmosphere, omega, winSize)
-{
+GetTransmissionEstimate <- function(image, atmosphere, omega, winSize) {
   n <- width(image)
   m <- height(image)
   channelsNum <- spectrum(image)
@@ -105,8 +111,7 @@ GetTransmissionEstimate <- function(image, atmosphere, omega, winSize)
 #' @importFrom imager width height spectrum
 #' @export
 #'
-GetRadiance<-function(image, transmission, atmosphere)
-{
+GetRadiance<-function(image, transmission, atmosphere) {
   n <- width(image)
   m <- height(image)
   channels <- spectrum(image)
