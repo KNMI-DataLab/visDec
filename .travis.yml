@@ -5,6 +5,7 @@ branches:
   only:
     - master
     - develop
+    - haziness
 
 language: r
 sudo: required
