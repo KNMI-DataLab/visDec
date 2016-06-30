@@ -1,7 +1,7 @@
 Package: visDec
 Title: Visibility Detection from Cameras
-Version: 0.0.0.9003
-Date: 2016-05-24
+Version: 0.0.0.9004
+Date: 2016-06-21
 Authors@R: c(person("Martin", "Roth", email = "roth@knmi.nl", role = c("aut", "cre")),
     person("Andrea", "Pagani", email = "pagani@knmi.nl", role = "aut"))
 Description: Visibility detection from cameras. Also have a look at rcpp/pkg/RcppCImg/ on github.
@@ -12,8 +12,13 @@ Imports:
     data.table,
     imager,
     R.matlab,
+    matlab,
     caret,
-    tree
+    abind,
+    tree,
+    Matrix,
+    pracma,
+    ptw
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
