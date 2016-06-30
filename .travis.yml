@@ -5,6 +5,7 @@ branches:
   only:
     - master
     - develop
+    - haziness
 
 language: r
 sudo: required
@@ -17,6 +18,8 @@ r_binary_packages:
  - png
  - jpeg
  - plyr
+r_github_packages:
+  - MartinRoth/imager
 
 r_packages:
   - covr

@@ -1,6 +1,6 @@
 ---
 title: "Fog Detection"
-author: "Martin Roth"
+author: "Martin Roth and Andrea Pagani"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
