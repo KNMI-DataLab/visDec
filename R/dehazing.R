@@ -30,8 +30,7 @@ GetDarkChannel <- function(image, winSize) {
   grid    <- expand.grid(width = 1:m, height = 1:n)
   winsize <- rep(winSize - 1, nrow(grid))
   offset  <- padSize - 1 #in cimg the patches are extracted from the center of the patch itself. Matlab extracts from top-left corner
-  patches <- extract_patches(paddedImage, grid[, 1] + offset, grid[, 2] + offset, winsize, winsize)
-  darkChannel <- vapply(patches, min, 1)
+  darkChannel <- extract_patches_min(paddedImage, grid[, 1] + offset, grid[, 2] + offset, winsize, winsize)
   dim(darkChannel) <- c(m, n)
   darkChannel
 }
@@ -155,7 +154,7 @@ GetRadiance<-function(image, transmission, atmosphere)
 #   rowInds      <- NULL #array(0, dim=c(maxNumVertex, 1))
 #   colInds      <- NULL #array(0, dim=c(maxNumVertex, 1))
 #   vals         <- NULL #array(0, dim=c(maxNumVertex, 1))
-# 
+#
 #   len <- 0
 #   for(k in 1:numInd){
 #   ind <- indices[k]
@@ -197,7 +196,7 @@ GetRadiance<-function(image, transmission, atmosphere)
 #   L <- D - A
 #   #return(L)
 # }
-# 
+#
 # #' Refines transmission estimate via matting Laplacian
 # #' @inheritParams Dehaze
 # #' @param transmission Initial transmission estimate
