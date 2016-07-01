@@ -22,8 +22,3 @@ FileNameParser <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
                          tz = "CET")
   return(list(name = name, dateTime = dateTime))
 }
-
-UndocumentedFunction <- function() {
-  message("I am testing the gihub check requirements")
-  message("Maybe with administrators checked as well?")
-}
