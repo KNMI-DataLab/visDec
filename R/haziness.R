@@ -1,6 +1,8 @@
 #' Obtains the dark horizontal average transmission
 #' @param image The image object
 #' @param winSize Should probably be renamed
+#' @param omega omega parameter
+#' @param lambda lambda parameter
 #' @return vertical transmission profile
 #' @export
 # #' @importFrom imager pad extract_patches width height channels as.cimg

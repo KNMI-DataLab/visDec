@@ -10,6 +10,10 @@ GetHorizAvgTrans(image, winSize, omega, lambda)
 \item{image}{The image object}
 
 \item{winSize}{Should probably be renamed}
+
+\item{omega}{omega parameter}
+
+\item{lambda}{lambda parameter}
 }
 \value{
 vertical transmission profile
