@@ -66,7 +66,7 @@ par(old_par)
 ### Computing basis image statistics
 
 ```{r, imageSummary}
-imageSummary <- foreach(file = iter(filenames), .combine = rbind) %do% {
+imageSummary <- foreach(file = iter(filenames[-(1:39)]), .combine = rbind) %dopar% {
   fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
   im <- subim(load.image(file), y > 16) 
   data.table(name = fileInformation$name,
