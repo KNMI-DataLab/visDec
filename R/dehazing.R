@@ -51,7 +51,7 @@ GetDarkChannel <- function(image, winSize) {
 #' Obtains atmosphere
 #' @param image The image object
 #' @param darkChannel Image dark channel
-#' @importFrom imager pad extract_patches width height
+#' @importFrom imager pad width height
 #' @export
 #'
 GetAtmosphere <- function(image, darkChannel) {
