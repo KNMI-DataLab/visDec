@@ -18,7 +18,8 @@ Imports:
     tree,
     Matrix,
     pracma,
-    ptw
+    ptw,
+    changepoint
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
