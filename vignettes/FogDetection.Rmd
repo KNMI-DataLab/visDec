@@ -64,21 +64,20 @@ detect.edges(im) %>% sqrt %>% plot
 par(old_par)
 ```
 
-
-
-
-
-
 ### Computing basis image statistics
 
 ```{r, imageSummary}
 imageSummary <- foreach(file = iter(filenames[-(1:39)]), .combine = rbind) %dopar% {
   fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
   im <- subim(load.image(file), y > 16) 
+  imT <- RGBtoHSV(im)
   data.table(name = fileInformation$name,
              dateTime = fileInformation$dateTime,
              meanEdge = detect.edges(im, 3) %>% sqrt %>% mean,
-             changePoint = cpts(cpt.mean(GetHorizAvgTrans(im), penalty = "None"))
+             changePoint = cpts(cpt.mean(GetHorizAvgTrans(im), penalty = "None")),
+             meanHue = mean(channel(imT, 1)),
+             meanSaturation = mean(channel(imT, 2)),
+             meanBrightness = mean(channel(imT, 3))
   )
 }
 ```
@@ -120,8 +119,11 @@ ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y =
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(FS261), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = changePoint, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanHue, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanSaturation, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanBrightness, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ```
 
-```{r}
+```{r, echo=FALSE}
 stopImplicitCluster()
 ```
