@@ -1,7 +1,8 @@
 #' Merge the information of configuration file and days and station of interest
-#' @param trainTestDT Data Table with image infromation
+#' @param dateStation Data Table with date of observation and station
+#' @param configDF Data Table with station information (e.g., lon, lat, id)
 #' @export
-RetriveDaysAndStation <- function(dateStation, configDF) {
+MergeDaysWithStationConfig <- function(dateStation, configDF) {
   mergedData<-merge(configDF, dateStation, by.x = "imagePrefix", by.y = "filePrefix")
   mergedData
 }

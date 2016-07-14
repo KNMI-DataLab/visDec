@@ -34,11 +34,11 @@ ReadConfig <- function(configFileName) {
 }
 
 #' Finds if an opbservation falls into the day time or not
-#' @param trainTestDT Data Table with image infromation
+#' @param fileInfoDT Data Table with image infromation
 #' @export
 RetriveDaysAndStation <- function(fileInfoDT) {
   fileInfoDT$dateOnly <- date(fileInfoDT$dateTime)
-  setkeyv(testTrainDT, c("filePrefix","dateOnly"))
-  uniqueDateStation<-subset(unique(testTrainDT), select=c("filePrefix", "dateOnly"))
+  setkeyv(fileInfoDT, c("filePrefix","dateOnly"))
+  uniqueDateStation<-subset(unique(fileInfoDT), select=c("filePrefix", "dateOnly"))
   uniqueDateStation
 }
