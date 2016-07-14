@@ -29,16 +29,16 @@ FileNameParser <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
 #' @param fullFilename String
 #' @export
 ReadConfig <- function(configFileName) {
-  configDF <- read.csv(configFileName)
+  configDF <- read.csv(configFileName, stringsAsFactors = FALSE)
   configDF
 }
 
-#' Finds if an opbservation falls into the day time or not
+#' Finds if an observation falls into the day time or not
 #' @param fileInfoDT Data Table with image infromation
-#' @export
-RetriveDaysAndStation <- function(fileInfoDT) {
-  fileInfoDT$dateOnly <- date(fileInfoDT$dateTime)
+UniqueDaysAndStation <- function(fileInfoDT) {
+  #fileInfoDT$dateOnly <- date(fileInfoDT$dateTime)
+  fileInfoDT[, dateOnly := as.Date(dateTime, tz = 'CET')]
   setkeyv(fileInfoDT, c("filePrefix","dateOnly"))
-  uniqueDateStation<-subset(unique(fileInfoDT), select=c("filePrefix", "dateOnly"))
+  uniqueDateStation <- subset(unique(fileInfoDT), select=c("filePrefix", "dateOnly"))
   uniqueDateStation
 }

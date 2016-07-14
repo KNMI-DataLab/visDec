@@ -2,7 +2,7 @@ context("MatLabCode")
 
 
 test_that("Same input same output", {
-  im <- imager::load.image("./10perSize.jpg")
+  im <- imager::load.image("./Input/10perSize.jpg")
 
   #matObjLoad <- R.matlab::readMat("../../inst/extdata/MatlabFiles/test/10percPicture/10PercResultsV3.mat")
 
@@ -10,19 +10,19 @@ test_that("Same input same output", {
   winSize <- 15
 
   darkChannel <- GetDarkChannel(im, winSize)
-  expect_equal_to_reference(darkChannel, "darkChannelReference.rds")
+  expect_equal_to_reference(darkChannel, "./Reference/darkChannelReference.rds")
 
   atmosphere <- GetAtmosphere(im, darkChannel)
-  expect_equal_to_reference(atmosphere, "atmosphereReference.rds")
+  expect_equal_to_reference(atmosphere, "./Reference/atmosphereReference.rds")
 
 
   omega <- 0.95
   transmissionEst <- GetTransmissionEstimate(im, atmosphere, omega, winSize)
-  expect_equal_to_reference(transmissionEst, "transmissionEstReference.rds")
+  expect_equal_to_reference(transmissionEst, "./Reference/transmissionEstReference.rds")
 
 
   radiance <- GetRadiance(im, transmissionEst, atmosphere)
-  expect_equal_to_reference(radiance, "radianceReference.rds")
+  expect_equal_to_reference(radiance, "./Reference/radianceReference.rds")
 
 
   #n <- imager::width(im)
@@ -35,7 +35,7 @@ test_that("Same input same output", {
 
   lambda <- 0.0001
   dehaze <- Dehaze(im, omega, winSize,lambda)
-  expect_equal_to_reference(dehaze, "dehazeReference.rds")
+  expect_equal_to_reference(dehaze, "./Reference/dehazeReference.rds")
   dehaze2 <- Dehaze(im)
   expect_equal(dehaze, dehaze2)
   # Still with refined transmission
@@ -46,7 +46,7 @@ test_that("Same input same output", {
 
 
   avgHorizTrans <- GetHorizAvgTrans(im, winSize, omega, lambda)
-  expect_equal_to_reference(avgHorizTrans, "avrHorizTransReference.rds")
+  expect_equal_to_reference(avgHorizTrans, "./Reference/avrHorizTransReference.rds")
 
 
 })
