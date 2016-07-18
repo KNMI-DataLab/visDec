@@ -9,12 +9,13 @@ MergeDaysWithStationConfig <- function(dateStation, configDF) {
 #' @param mergedData data of station of interest and day of interest
 #' @param originalFileInfoDT data table with image files information
 #' @export
-FilterDayLightHours <- function(mergedData, originalFileInfoDT) {
+FilterDayLightHours <- function(originalFileInfoDT) {
+  uniqueDaysStation <- UniqueDaysAndStation(originalFileInfoDT)
+  mergedData <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
   dataWithSunTimes <- GetSunTimes(mergedData)
   combined <- merge(originalFileInfoDT, dataWithSunTimes, by.x = "dateOnly", by.y = "dateOnly")
   #combined$isDay <- combined[,dateTime] > combined[,sunriseDateTime] & combined[,dateTime] < combined[,sunsetDateTime]
   combined[, isDay := dateTime > sunriseDateTime & dateTime < sunsetDateTime]
-  combined
 }
 
 #' Find the sunrise and sunset times given a date and lon lat location

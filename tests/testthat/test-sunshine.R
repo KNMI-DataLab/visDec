@@ -20,8 +20,9 @@ print(imageSummary)
 
 
 test_that("check day", {
-  uniqueDaysStation <- UniqueDaysAndStation(imageSummary)
-  mergedStationDays <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
+  #uniqueDaysStation <- UniqueDaysAndStation(imageSummary)
+  #mergedStationDays <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
   #print(FilterDayLightHours(mergedStationDays, imageSummary))
-  expect_equal((FilterDayLightHours(mergedStationDays, imageSummary)$isDay), c(FALSE, FALSE, TRUE))
+  expect_equal((FilterDayLightHours(imageSummary)$isDay), c(FALSE, FALSE, TRUE))
+  expect_equal_to_reference(FilterDayLightHours(imageSummary), file = "./Reference/DaylightHours.rds")
 })

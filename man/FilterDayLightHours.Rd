@@ -4,12 +4,12 @@
 \alias{FilterDayLightHours}
 \title{Filter the lighthours given the information of the station (longitude, latitude) and day}
 \usage{
-FilterDayLightHours(mergedData, originalFileInfoDT)
+FilterDayLightHours(originalFileInfoDT)
 }
 \arguments{
-\item{mergedData}{data of station of interest and day of interest}
-
 \item{originalFileInfoDT}{data table with image files information}
+
+\item{mergedData}{data of station of interest and day of interest}
 }
 \description{
 Filter the lighthours given the information of the station (longitude, latitude) and day
