@@ -26,7 +26,7 @@ FileNameParser <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
 
 
 #' Read properties file from file
-#' @param fullFilename String
+#' @param configFileName String
 #' @export
 ReadConfig <- function(configFileName) {
   configDF <- read.csv(configFileName, stringsAsFactors = FALSE)

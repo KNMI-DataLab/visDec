@@ -8,8 +8,6 @@ FilterDayLightHours(originalFileInfoDT)
 }
 \arguments{
 \item{originalFileInfoDT}{data table with image files information}
-
-\item{mergedData}{data of station of interest and day of interest}
 }
 \description{
 Filter the lighthours given the information of the station (longitude, latitude) and day

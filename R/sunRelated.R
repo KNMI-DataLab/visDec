@@ -6,7 +6,6 @@ MergeDaysWithStationConfig <- function(dateStation, configDF) {
 }
 
 #' Filter the lighthours given the information of the station (longitude, latitude) and day
-#' @param mergedData data of station of interest and day of interest
 #' @param originalFileInfoDT data table with image files information
 #' @export
 FilterDayLightHours <- function(originalFileInfoDT) {

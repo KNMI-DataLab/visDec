@@ -7,7 +7,7 @@
 ReadConfig(configFileName)
 }
 \arguments{
-\item{fullFilename}{String}
+\item{configFileName}{String}
 }
 \description{
 Read properties file from file
