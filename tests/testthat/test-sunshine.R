@@ -15,7 +15,6 @@ middayFile <- "./Input/Meetterrein_20151009_1200.jpg"
 imageSummary <- foreach(file = iter(c(midnightFile, preSunriseTimeFile, middayFile)), .combine = rbind) %do% {
   fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
 }
-print(imageSummary)
 
 
 
