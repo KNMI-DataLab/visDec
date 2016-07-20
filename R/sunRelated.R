@@ -24,7 +24,7 @@ GetSunTimes <- function(data) {
   #the values in the list at positions are: [5]: lon [6]:lat [8]:date
   fn <- function(x, direction) {
     sunriset(crds = matrix(c(as.numeric(x[5]), as.numeric(x[6])),nrow = 1),
-             dateTime = as.POSIXct(x[8]), direction = direction,
+             dateTime = as.POSIXct(x[8], tz="CET"), direction = direction,
              POSIXct.out = TRUE)
   }
   sunriseTime <- apply(data, 1, fn, "sunrise")
