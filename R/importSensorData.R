@@ -26,3 +26,26 @@ CorrectOurs <- function(x) {
   y[x <  10000] <- paste0("00", x[x < 10000])
   return(y)
 }
+
+
+#' Read MOR data files Twente | TEMPORARY TO BE THE ONLY FORMAT SUPPORTED SINCE OFFICIAL FORMAT IN KIS
+#' @param filenames List of filenames
+#' @return data.table
+#' @export
+ReadMORSensorDataTWE <- function(filenames) {
+  #FS261 <- TMM261 <- FS260 <- yyyymmdd <- hhmmss <- dateTime <- day <- NULL
+  sensorData <- read.csv(filenames,stringsAsFactors = FALSE)
+  sensorData <- data.table(sensorData)
+  sensorData[TOA.MOR_10  == -1, TOA.MOR_10  := NA]
+  #sensorData[, hhmmss := CorrectOurs(hhmmss)]
+  sensorData[, IT_DATETIME := as.POSIXct(sensorData[, IT_DATETIME], format = "%Y%m%d_%H%M%S", tz = "CET")]
+  setnames(sensorData, "IT_DATETIME", "dateTime")
+  #sensorData[, hhmmss := NULL]
+  sensorData[, year   := year(dateTime)]
+  sensorData[, month  := month(dateTime)]
+  sensorData[, day    := mday(dateTime)]
+  sensorData[, hour   := hour(dateTime)]
+  setcolorder(sensorData, c(2, 1, 5, 6, 7, 8, 3, 4))
+  return(sensorData)
+}
+
