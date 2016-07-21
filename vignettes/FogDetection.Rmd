@@ -33,18 +33,10 @@ registerDoParallel(cores=2)
 
 ### Read example pictures
 ```{r, ExamplePictures}
-path <- "../inst/extdata/Meetterrein"
+path <- system.file("extdata/Meetterrein", package="visDec")
 filenames <- list.files(path,
                         pattern=glob2rx("Meetterrein_201510*.jpg"),
                         full.names=TRUE)
-```
-
-```{r, ComputeEdgesClear, echo=FALSE}
-detect.edges <- function(im,sigma=1) {
-  # adapted from http://dahtah.github.io/imager/foreground_background.html
-  isoblur(im,sigma) %>% imgradient("xy") %>% llply(function(v) v^2) %>%
-    add %>% imsplit("c") %>% add 
-}
 ```
 
 ### Edges in a clear situation
@@ -52,7 +44,7 @@ detect.edges <- function(im,sigma=1) {
 im <- subim(load.image(filenames[75]), y > 16)
 old_par <- par(mfrow=c(1,2))
 plot(im)
-detect.edges(im) %>% sqrt %>% plot
+DetectEdges(im) %>% plot
 par(old_par)
 ```
 
@@ -61,9 +53,10 @@ par(old_par)
 im <- subim(load.image(filenames[49]), y > 16)
 old_par <- par(mfrow=c(1,2))
 plot(im)
-detect.edges(im) %>% sqrt %>% plot
+DetectEdges(im) %>% plot
 par(old_par)
 ```
+
 
 ### Computing basis image statistics
 
@@ -78,7 +71,7 @@ daylightImages <- FilterDayLightHours(imageSummary)[isDay == TRUE]
 ReturnFeatures <- function(filePath) {
   im <- subim(load.image(filePath), y > 16) 
   imT <- RGBtoHSV(im)
-  list(meanEdge = detect.edges(im, 3) %>% sqrt %>% mean,
+  list(meanEdge = DetectMeanEdges(im, 3),
        changePoint = cpts(cpt.mean(GetHorizAvgTrans(im), penalty = "None")),
        meanHue = mean(channel(imT, 1)),
        meanSaturation = mean(channel(imT, 2)),
@@ -103,7 +96,8 @@ imageSummary <- foreach(id = iter(daylightImages[, id]), .packages = c('data.tab
 
 ### Load sensor values
 ```{r, SensorFiles, fig.show='hold'}
-sensorFiles <- list.files("../inst/extdata/Sensor",
+path <- system.file("extdata/Sensor", package="visDec")
+sensorFiles <- list.files(path,
                           pattern=glob2rx("MOR_DeBilt*.txt"),
                           full.names=TRUE)
 sensorData <- ReadMORSensorData(sensorFiles)

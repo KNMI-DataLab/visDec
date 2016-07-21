@@ -2,26 +2,25 @@ context("sunshine")
 
 ## TODO: Rename context
 ## TODO: Add more tests
-library(foreach)
-library(iterators)
+#library(foreach)
+#library(iterators)
 library(visDec)
 
 
-midnightFile <- "./Input/Meetterrein_20151009_0000.jpg"
-preSunriseTimeFile <- "./Input/Meetterrein_20151009_0610.jpg"
-middayFile <- "./Input/Meetterrein_20151009_1200.jpg"
-
-
-imageSummary <- foreach(file = iter(c(midnightFile, preSunriseTimeFile, middayFile)), .combine = rbind) %do% {
-  fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
-}
-
+files <- c("./Input/Meetterrein_20151009_0000.jpg", # midnight
+           "./Input/Meetterrein_20151009_0610.jpg", # pre sunrise
+           "./Input/Meetterrein_20151009_1200.jpg") # midday
 
 
 test_that("check day", {
+
+  fileInfo <- data.table::rbindlist(lapply(files, FileNameParser,
+                                           pattern="na*me_yyyymmdd_hhmm.jpg"))
+
   #uniqueDaysStation <- UniqueDaysAndStation(imageSummary)
   #mergedStationDays <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
   #print(FilterDayLightHours(mergedStationDays, imageSummary))
-  expect_equal((FilterDayLightHours(imageSummary)$isDay), c(FALSE, FALSE, TRUE))
-  expect_equal_to_reference(FilterDayLightHours(imageSummary), file = "./Reference/DaylightHours.rds")
+  tmp <- FilterDayLightHours(fileInfo)
+  expect_equal(tmp$isDay, c(FALSE, FALSE, TRUE))
+  expect_equal_to_reference(tmp, file = "./Reference/DaylightHours.rds")
 })
