@@ -29,7 +29,7 @@ GetPaddedImage <- function(image, padSize) {
 #' @importFrom matlab padarray
 #' @importFrom abind abind
 #' @export
-GetDarkChannel <- function(image, winSize) {
+GetDarkChannel <- function(image, winSize=15) {
   m <- width(image)
   n <- height(image)
   padSize     <- floor(winSize/2)
@@ -80,7 +80,8 @@ GetAtmosphere <- function(image, darkChannel) {
 #' @importFrom abind abind
 #' @export
 #'
-GetTransmissionEstimate <- function(image, atmosphere, omega, winSize) {
+GetTransmissionEstimate <- function(image, atmosphere, omega = 0.95,
+                                    winSize = 15) {
   n <- width(image)
   m <- height(image)
   channelsNum <- spectrum(image)
