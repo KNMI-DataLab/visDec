@@ -17,10 +17,17 @@ GetHorizAvgTrans <- function(image, winSize = 15, omega = 0.95,
 }
 
 #' Obtains change point of transmission
-#' @param image The image object
+#' @param transmission The horizontally averaged transmission
 #' @export
-TransmissionChangepoint <- function(image) {
-  image %>% GetHorizAvgTrans() %>%
+TransmissionChangepoint <- function(transmission) {
+  transmission %>%
     cpt.mean(penalty = "None") %>%
     cpts()
+}
+
+#' Smoothness of transmission
+#' @param transmission The horizontally averaged transmission
+#' @export
+TransmissionSmoothness <- function(transmission) {
+  sd(diff(transmission, lag=50)) /abs(mean(diff(transmission, lag = 50)))
 }

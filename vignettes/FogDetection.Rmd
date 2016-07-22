@@ -71,15 +71,17 @@ daylightImages <- FilterDayLightHours(imageSummary, properties)[isDay == TRUE]
 ReturnFeatures <- function(filePath) {
   im <- subim(load.image(filePath), y > 16) 
   imT <- RGBtoHSV(im)
+  transmission <- GetHorizAvgTrans(im)
   list(meanEdge = DetectMeanEdges(im, 3),
-       changePoint = TransmissionChangepoint(im), 
+       changePoint = TransmissionChangepoint(transmission),
+       smoothness = TransmissionSmoothness(transmission),
        meanHue = mean(channel(imT, 1)),
        meanSaturation = mean(channel(imT, 2)),
        meanBrightness = mean(channel(imT, 3)) )
 }
 
-featureNames <- c("meanEdge", "changePoint", "meanHue", "meanSaturation",
-                  "meanBrightness")
+featureNames <- c("meanEdge", "changePoint", "smoothness",
+                  "meanHue", "meanSaturation", "meanBrightness")
 
 
 daylightImages[, id := 1:.N]
@@ -130,6 +132,7 @@ ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y =
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(FS261), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = changePoint, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = smoothness, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanHue, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanSaturation, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanBrightness, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
