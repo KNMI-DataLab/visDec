@@ -7,7 +7,6 @@ test_that("Same input same output", {
   #matObjLoad <- R.matlab::readMat("../../inst/extdata/MatlabFiles/test/10percPicture/10PercResultsV3.mat")
 
   expect_equal_to_reference(DetectMeanEdges(im, 3), "./Reference/meanEdges.rds")
-  expect_equal_to_reference(TransmissionChangepoint(im), "./Reference/transmissionChangepoint.rds")
 
   winSize <- 15
 
@@ -49,5 +48,8 @@ test_that("Same input same output", {
 
   avgHorizTrans <- GetHorizAvgTrans(im)
   expect_equal_to_reference(avgHorizTrans, "avrHorizTransReference.rds")
+
+  expect_equal_to_reference(TransmissionChangepoint(avgHorizTrans), "./Reference/transmissionChangepoint.rds")
+  expect_equal_to_reference(TransmissionSmoothness(avgHorizTrans), "./Reference/transmissionSmoothness.rds")
 
 })
