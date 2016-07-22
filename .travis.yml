@@ -6,6 +6,7 @@ branches:
     - master
     - develop
     - haziness
+    - sunnyday
 
 language: r
 sudo: required
