@@ -2,14 +2,18 @@
 % Please edit documentation in R/sunRelated.R
 \name{FilterDayLightHours}
 \alias{FilterDayLightHours}
-\title{Filter the lighthours given the information of the station (longitude, latitude) and day}
+\title{Filter the lighthours given the information of the station (longitude,
+latitude) and day}
 \usage{
-FilterDayLightHours(originalFileInfoDT)
+FilterDayLightHours(originalFileInfoDT, properties)
 }
 \arguments{
 \item{originalFileInfoDT}{data table with image files information}
+
+\item{properties}{data table with specific information}
 }
 \description{
-Filter the lighthours given the information of the station (longitude, latitude) and day
+Filter the lighthours given the information of the station (longitude,
+latitude) and day
 }
 

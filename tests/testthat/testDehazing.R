@@ -1,4 +1,4 @@
-context("MatLabCode")
+context("Feature calculation")
 
 
 test_that("Same input same output", {
@@ -6,6 +6,7 @@ test_that("Same input same output", {
 
   #matObjLoad <- R.matlab::readMat("../../inst/extdata/MatlabFiles/test/10percPicture/10PercResultsV3.mat")
 
+  expect_equal_to_reference(DetectMeanEdges(im, 3), "./Reference/meanEdges.rds")
 
   winSize <- 15
 

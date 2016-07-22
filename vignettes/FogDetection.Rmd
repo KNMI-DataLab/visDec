@@ -65,7 +65,7 @@ imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
   FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
 }
 
-daylightImages <- FilterDayLightHours(imageSummary)[isDay == TRUE]
+daylightImages <- FilterDayLightHours(imageSummary, properties)[isDay == TRUE]
 
 
 ReturnFeatures <- function(filePath) {

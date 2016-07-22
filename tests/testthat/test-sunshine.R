@@ -20,7 +20,7 @@ test_that("check day", {
   #uniqueDaysStation <- UniqueDaysAndStation(imageSummary)
   #mergedStationDays <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
   #print(FilterDayLightHours(mergedStationDays, imageSummary))
-  tmp <- FilterDayLightHours(fileInfo)
+  tmp <- FilterDayLightHours(fileInfo, properties)
   expect_equal(tmp$isDay, c(FALSE, FALSE, TRUE))
   expect_equal_to_reference(tmp, file = "./Reference/DaylightHours.rds")
 })

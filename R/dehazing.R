@@ -89,7 +89,10 @@ GetTransmissionEstimate <- function(image, atmosphere, omega, winSize) {
   final<-list()
   splittedImage<-channels(image, drop = TRUE)
   for(k in 1:channelsNum){
-    temp <- array(toFill[k], dim = c(n, m))#m and n are inverted given the internal array-like representation that imager has #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
+    #m and n are inverted given the internal array-like representation that
+    # imager has #adding a fourth dimention to have a 4 dimentional matrix as
+    # normal color images are (3 colors plus 1 frame)
+    temp <- array(toFill[k], dim = c(n, m))
     division <- splittedImage[[k]] / temp
     final <- c(final, list(division))
   }
@@ -119,17 +122,22 @@ GetRadiance<-function(image, transmission, atmosphere) {
   repAtmosphere <- NULL
   maxTransmission <- NULL
   for(k in 1:channels){
-    temp <- array(toFill[k], dim = c(n, m, 1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
+    # adding a fourth dimention to have a 4 dimentional matrix as normal color
+    # images are (3 colors plus 1 frame)
+    temp <- array(toFill[k], dim = c(n, m, 1))
     repAtmosphere <- abind(repAtmosphere,temp,along = 4)
   }
   repAtmosphere <- unname(repAtmosphere)
   maxValues <- pmax(transmission, 0.1)
   for(k in 1:channels){
-    temp <- array(maxValues, dim = c(n, m, 1)) #adding a fourth dimention to have a 4 dimentional matrix as normal color images are (3 colors plus 1 frame)
+    # adding a fourth dimention to have a 4 dimentional matrix as normal color
+    # images are (3 colors plus 1 frame)
+    temp <- array(maxValues, dim = c(n, m, 1))
     maxTransmission<-abind(maxTransmission, temp, along = 4)
   }
   maxTransmission<-unname(maxTransmission)
-  radiance <- ((as.array(image) - repAtmosphere) / maxTransmission) + repAtmosphere
+  radiance <- ((as.array(image) - repAtmosphere) / maxTransmission) +
+    repAtmosphere
   radiance <- unname(radiance)
   radiance
 }
@@ -152,7 +160,8 @@ GetRadiance<-function(image, transmission, atmosphere) {
 #   winRad   <- 1
 #   epsilon  <- 0.0000001
 #   maxNumNeigh  <- (winRad * 2 + 1) ^ 2
-#   #HERE I USE A SQUARE SHAPE TO ERODE AND NOT A DISK SHAPE AS IN THE ORIGINAL MATLAB CODE
+#   # HERE I USE A SQUARE SHAPE TO ERODE AND NOT A DISK SHAPE AS IN THE ORIGINAL
+#   # MATLAB CODE
 #   #trimapAll    <- erode_square(trimapAll, winRad * 2 + 1)
 #   indMat       <- matrix(1:imgSize, m, n)
 #   #indices      <- which((1 - trimapAll) != 0)
@@ -230,16 +239,7 @@ GetRadiance<-function(image, transmission, atmosphere) {
 #' @param winSize Should probably be renamed to patch
 #' @export
 #'
-Dehaze <- function(image, omega, winSize, lambda) {
-  if (missing(omega)) {
-    omega <- 0.95
-  }
-  if (missing(winSize)) {
-    winSize <- 15
-  }
-  if (missing(lambda)) {
-    lambda <- 0.0001
-  }
+Dehaze <- function(image, omega = 0.95, winSize = 15, lambda = 0.0001) {
   darkChannel  <- GetDarkChannel(image, winSize)
   atmosphere   <- GetAtmosphere(image, darkChannel)
   transmission <- GetTransmissionEstimate(image, atmosphere, omega, winSize)

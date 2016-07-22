@@ -4,7 +4,7 @@
 \alias{GetHorizAvgTrans}
 \title{Obtains the dark horizontal average transmission}
 \usage{
-GetHorizAvgTrans(image, winSize, omega, lambda)
+GetHorizAvgTrans(image, winSize = 15, omega = 0.95, lambda = 0.001)
 }
 \arguments{
 \item{image}{The image object}
