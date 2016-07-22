@@ -15,3 +15,12 @@ GetHorizAvgTrans <- function(image, winSize = 15, omega = 0.95,
   # imager that invert height and width in the matrix representation
   rowMeans(t(transmission))
 }
+
+#' Obtains change point of transmission
+#' @param image The image object
+#' @export
+TransmissionChangepoint <- function(image) {
+  image %>% GetHorizAvgTrans() %>%
+    cpt.mean(penalty = "None") %>%
+    cpts()
+}

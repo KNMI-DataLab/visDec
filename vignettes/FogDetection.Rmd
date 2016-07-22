@@ -72,7 +72,7 @@ ReturnFeatures <- function(filePath) {
   im <- subim(load.image(filePath), y > 16) 
   imT <- RGBtoHSV(im)
   list(meanEdge = DetectMeanEdges(im, 3),
-       changePoint = cpts(cpt.mean(GetHorizAvgTrans(im), penalty = "None")),
+       changePoint = TransmissionChangepoint(im), 
        meanHue = mean(channel(imT, 1)),
        meanSaturation = mean(channel(imT, 2)),
        meanBrightness = mean(channel(imT, 3)) )

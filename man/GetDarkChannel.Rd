@@ -4,7 +4,7 @@
 \alias{GetDarkChannel}
 \title{Obtains the dark channel}
 \usage{
-GetDarkChannel(image, winSize)
+GetDarkChannel(image, winSize = 15)
 }
 \arguments{
 \item{image}{The image object}
