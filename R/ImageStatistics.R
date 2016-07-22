@@ -10,6 +10,7 @@ FileNameParser <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
   name <- tmp
   tmp <- strsplit(tmp, "_")[[1]]
   if (length(tmp)!=3) stop("filename does not match specified pattern")
+  filePrefix <- tmp[1]
   date <- tmp[2]
   time <- substr(tmp[3], 1, 4)
   year <- substr(date,1,4)
@@ -20,5 +21,17 @@ FileNameParser <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
   dateTime <- as.POSIXct(paste(paste(year,month,day,sep="-"),
                                paste(hour,min,sep=":")),
                          tz = "CET")
-  return(list(name = name, dateTime = dateTime))
+  return(data.table(filePrefix = filePrefix, filePath = fullFilename,
+                    dateTime = dateTime))
+}
+
+#' Finds if an observation falls into the day time or not
+#' @param fileInfoDT Data Table with image infromation
+UniqueDaysAndStation <- function(fileInfoDT) {
+  dateOnly <- dateTime <- NULL
+  fileInfoDT[, dateOnly := as.Date(dateTime, tz = 'CET')]
+  setkeyv(fileInfoDT, c("filePrefix","dateOnly"))
+  uniqueDateStation <- subset(unique(fileInfoDT),
+                              select=c("filePrefix", "dateOnly"))
+  uniqueDateStation
 }

@@ -19,7 +19,10 @@ Imports:
     Matrix,
     pracma,
     ptw,
-    changepoint
+    changepoint,
+    maptools,
+    magrittr,
+    plyr
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1

@@ -33,17 +33,10 @@ registerDoParallel(cores=2)
 
 ### Read example pictures
 ```{r, ExamplePictures}
-filenames <- list.files("../inst/extdata/Meetterrein",
-                        pattern=glob2rx("Meetterrein_20151009*.jpg"),
+path <- system.file("extdata/Meetterrein", package="visDec")
+filenames <- list.files(path,
+                        pattern=glob2rx("Meetterrein_201510*.jpg"),
                         full.names=TRUE)
-```
-
-```{r, ComputeEdgesClear, echo=FALSE}
-detect.edges <- function(im,sigma=1) {
-  # adapted from http://dahtah.github.io/imager/foreground_background.html
-  isoblur(im,sigma) %>% imgradient("xy") %>% llply(function(v) v^2) %>%
-    add %>% imsplit("c") %>% add 
-}
 ```
 
 ### Edges in a clear situation
@@ -51,7 +44,7 @@ detect.edges <- function(im,sigma=1) {
 im <- subim(load.image(filenames[75]), y > 16)
 old_par <- par(mfrow=c(1,2))
 plot(im)
-detect.edges(im) %>% sqrt %>% plot
+DetectEdges(im) %>% plot
 par(old_par)
 ```
 
@@ -60,33 +53,51 @@ par(old_par)
 im <- subim(load.image(filenames[49]), y > 16)
 old_par <- par(mfrow=c(1,2))
 plot(im)
-detect.edges(im) %>% sqrt %>% plot
+DetectEdges(im) %>% plot
 par(old_par)
 ```
+
 
 ### Computing basis image statistics
 
 ```{r, imageSummary}
-imageSummary <- foreach(file = iter(filenames[-(1:39)]), .combine = rbind) %dopar% {
-  fileInformation <- FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
-  im <- subim(load.image(file), y > 16) 
-  imT <- RGBtoHSV(im)
-  data.table(name = fileInformation$name,
-             dateTime = fileInformation$dateTime,
-             meanEdge = detect.edges(im, 3) %>% sqrt %>% mean,
-             changePoint = cpts(cpt.mean(GetHorizAvgTrans(im), penalty = "None")),
-             meanHue = mean(channel(imT, 1)),
-             meanSaturation = mean(channel(imT, 2)),
-             meanBrightness = mean(channel(imT, 3))
-  )
+imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
+  FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
 }
+
+daylightImages <- FilterDayLightHours(imageSummary, properties)[isDay == TRUE]
+
+
+ReturnFeatures <- function(filePath) {
+  im <- subim(load.image(filePath), y > 16) 
+  imT <- RGBtoHSV(im)
+  list(meanEdge = DetectMeanEdges(im, 3),
+       changePoint = cpts(cpt.mean(GetHorizAvgTrans(im), penalty = "None")),
+       meanHue = mean(channel(imT, 1)),
+       meanSaturation = mean(channel(imT, 2)),
+       meanBrightness = mean(channel(imT, 3)) )
+}
+
+featureNames <- c("meanEdge", "changePoint", "meanHue", "meanSaturation",
+                  "meanBrightness")
+
+
+daylightImages[, id := 1:.N]
+setkey(daylightImages, id)
+
+imageSummary <- foreach(id = iter(daylightImages[, id]), .packages = c('data.table'), .combine = rbind) %dopar% {
+  tmp <- daylightImages[id, ]
+  tmp[, eval(featureNames) := ReturnFeatures(filePath), by = dateTime]
+}
+
 ```
 
 
 
 ### Load sensor values
 ```{r, SensorFiles, fig.show='hold'}
-sensorFiles <- list.files("../inst/extdata/Sensor",
+path <- system.file("extdata/Sensor", package="visDec")
+sensorFiles <- list.files(path,
                           pattern=glob2rx("MOR_DeBilt*.txt"),
                           full.names=TRUE)
 sensorData <- ReadMORSensorData(sensorFiles)
