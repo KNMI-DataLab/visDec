@@ -4,7 +4,7 @@
 \alias{Dehaze}
 \title{Obtain the dehazed image}
 \usage{
-Dehaze(image, omega, winSize, lambda)
+Dehaze(image, omega = 0.95, winSize = 15, lambda = 1e-04)
 }
 \arguments{
 \item{image}{Image}

@@ -21,24 +21,17 @@ FileNameParser <- function(fullFilename, pattern="na*me_yyyymmdd_hhmm.jpg") {
   dateTime <- as.POSIXct(paste(paste(year,month,day,sep="-"),
                                paste(hour,min,sep=":")),
                          tz = "CET")
-  return(data.table(filePrefix = filePrefix, filePath = fullFilename, dateTime = dateTime))
-}
-
-
-#' Read properties file from file
-#' @param configFileName String
-#' @export
-ReadConfig <- function(configFileName) {
-  configDF <- read.csv(configFileName, stringsAsFactors = FALSE)
-  configDF
+  return(data.table(filePrefix = filePrefix, filePath = fullFilename,
+                    dateTime = dateTime))
 }
 
 #' Finds if an observation falls into the day time or not
 #' @param fileInfoDT Data Table with image infromation
 UniqueDaysAndStation <- function(fileInfoDT) {
-  #fileInfoDT$dateOnly <- date(fileInfoDT$dateTime)
+  dateOnly <- dateTime <- NULL
   fileInfoDT[, dateOnly := as.Date(dateTime, tz = 'CET')]
   setkeyv(fileInfoDT, c("filePrefix","dateOnly"))
-  uniqueDateStation <- subset(unique(fileInfoDT), select=c("filePrefix", "dateOnly"))
+  uniqueDateStation <- subset(unique(fileInfoDT),
+                              select=c("filePrefix", "dateOnly"))
   uniqueDateStation
 }
