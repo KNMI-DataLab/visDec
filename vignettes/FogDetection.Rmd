@@ -33,20 +33,10 @@ registerDoParallel(cores=2)
 
 ### Read example pictures
 ```{r, ExamplePictures}
-path <- "../inst/extdata/Meetterrein"
-path2 <- "/net/bhw420/nobackup/users/wauben/CAMERA/EHTW/201510"
-filenames <- list.files(path2,
-                        #pattern=glob2rx("Meetterrein_201510*.jpg"),
-                        pattern=glob2rx("EHTW_2015102109*.jpg"),
+path <- system.file("extdata/Meetterrein", package="visDec")
+filenames <- list.files(path,
+                        pattern=glob2rx("Meetterrein_201510*.jpg"),
                         full.names=TRUE)
-```
-
-```{r, ComputeEdgesClear, echo=FALSE}
-detect.edges <- function(im,sigma=1) {
-  # adapted from http://dahtah.github.io/imager/foreground_background.html
-  isoblur(im,sigma) %>% imgradient("xy") %>% llply(function(v) v^2) %>%
-    add %>% imsplit("c") %>% add 
-}
 ```
 
 ### Edges in a clear situation
@@ -54,7 +44,7 @@ detect.edges <- function(im,sigma=1) {
 im <- subim(load.image(filenames[75]), y > 16)
 old_par <- par(mfrow=c(1,2))
 plot(im)
-detect.edges(im) %>% sqrt %>% plot
+DetectEdges(im) %>% plot
 par(old_par)
 ```
 
@@ -63,32 +53,35 @@ par(old_par)
 im <- subim(load.image(filenames[49]), y > 16)
 old_par <- par(mfrow=c(1,2))
 plot(im)
-detect.edges(im) %>% sqrt %>% plot
+DetectEdges(im) %>% plot
 par(old_par)
 ```
+
 
 ### Computing basis image statistics
 
 ```{r, imageSummary}
 imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
-  FileNameParser(file, "na*me_yyyymmddhhmm.jpg")#Twente pattern
+  FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
 }
 
-daylightImages <- FilterDayLightHours(imageSummary)[isDay == TRUE]
+daylightImages <- FilterDayLightHours(imageSummary, properties)[isDay == TRUE]
 
 
 ReturnFeatures <- function(filePath) {
   im <- subim(load.image(filePath), y > 16) 
   imT <- RGBtoHSV(im)
-  list(meanEdge = detect.edges(im, 3) %>% sqrt %>% mean,
-       changePoint = cpts(cpt.mean(GetHorizAvgTrans(im), penalty = "None")),
+  transmission <- GetHorizAvgTrans(im)
+  list(meanEdge = DetectMeanEdges(im, 3),
+       changePoint = TransmissionChangepoint(transmission),
+       smoothness = TransmissionSmoothness(transmission),
        meanHue = mean(channel(imT, 1)),
        meanSaturation = mean(channel(imT, 2)),
        meanBrightness = mean(channel(imT, 3)) )
 }
 
-featureNames <- c("meanEdge", "changePoint", "meanHue", "meanSaturation",
-                  "meanBrightness")
+featureNames <- c("meanEdge", "changePoint", "smoothness",
+                  "meanHue", "meanSaturation", "meanBrightness")
 
 
 daylightImages[, id := 1:.N]
@@ -103,26 +96,23 @@ imageSummary <- foreach(id = iter(daylightImages[, id]), .packages = c('data.tab
 
 
 
-### Load sensor values -- Twente
+### Load sensor values
 ```{r, SensorFiles, fig.show='hold'}
-sensorFiles <- list.files("../inst/extdata/Sensor",
-                          pattern=glob2rx("Twente*.csv"),
+path <- system.file("extdata/Sensor", package="visDec")
+sensorFiles <- list.files(path,
+                          pattern=glob2rx("MOR_DeBilt*.txt"),
                           full.names=TRUE)
-sensorData <- ReadMORSensorDataTWE(sensorFiles)
+sensorData <- ReadMORSensorData(sensorFiles)
 setkey(sensorData, dateTime)
 setkey(imageSummary, dateTime)
 imageSummary <- merge(imageSummary, sensorData)
-imageSummary[, MOR := TOA.MOR_10, by = dateTime]
+imageSummary[, medianMOR := median(c(FS261, TMM261, FS260), na.rm=TRUE), by = dateTime]
 ```
-
-
-
-
 
 ### Time series
 ```{r, TimeSeries, fig.show='hold'}
 ggplot(imageSummary, aes(x = dateTime, y = meanEdge)) + geom_line() + xlab("")
-ggplot(imageSummary, aes(x = dateTime, y= MOR)) + geom_line() +
+ggplot(imageSummary, aes(x = dateTime, y= medianMOR)) + geom_line() +
   xlab("") 
 ```
 
@@ -135,15 +125,17 @@ ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
 ### Scatter plots
 ```{r, ScatterPlots, fig.show='hold'}
 imageSummary[, visibility := factor(2000)]
-imageSummary[MOR < 1000, visibility := factor(1000)]
-imageSummary[MOR < 500, visibility := factor(500)]
-imageSummary[MOR < 200, visibility := factor(200)]
-ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanEdge, col = visibility)) + geom_point()
-ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
-ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = changePoint, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
-ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanHue, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
-ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanSaturation, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
-ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanBrightness, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+imageSummary[medianMOR < 1000, visibility := factor(1000)]
+imageSummary[medianMOR < 500, visibility := factor(500)]
+imageSummary[medianMOR < 200, visibility := factor(200)]
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanEdge, col = visibility)) + geom_point()
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(FS261), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = changePoint, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = smoothness, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanHue, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanSaturation, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(medianMOR), y = meanBrightness, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ```
 
 ```{r, echo=FALSE}
