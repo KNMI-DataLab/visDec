@@ -1,4 +1,4 @@
-context("MatLabCode")
+context("Feature calculation")
 
 
 test_that("Same input same output", {
@@ -6,6 +6,7 @@ test_that("Same input same output", {
 
   #matObjLoad <- R.matlab::readMat("../../inst/extdata/MatlabFiles/test/10percPicture/10PercResultsV3.mat")
 
+  expect_equal_to_reference(DetectMeanEdges(im, 3), "./Reference/meanEdges.rds")
 
   winSize <- 15
 
@@ -45,8 +46,10 @@ test_that("Same input same output", {
   #expect_equal(drop(dehaze), matrixMatLoadDeHaze)
 
 
-  avgHorizTrans <- GetHorizAvgTrans(im, winSize, omega, lambda)
-  expect_equal_to_reference(avgHorizTrans, "./Reference/avrHorizTransReference.rds")
+  avgHorizTrans <- GetHorizAvgTrans(im)
+  expect_equal_to_reference(avgHorizTrans, "avrHorizTransReference.rds")
 
+  expect_equal_to_reference(TransmissionChangepoint(avgHorizTrans), "./Reference/transmissionChangepoint.rds")
+  expect_equal_to_reference(TransmissionSmoothness(avgHorizTrans), "./Reference/transmissionSmoothness.rds")
 
 })
