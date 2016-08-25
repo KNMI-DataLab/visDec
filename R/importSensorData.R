@@ -3,6 +3,7 @@
 #' @return data.table
 #' @export
 ReadMORSensorData <- function(filenames) {
+  dateTime <- day <- IT_DATETIME <- TOA.MOR_10 <- NULL
   sensorData <- rbindlist(lapply(filenames, read.csv, stringsAsFactors = FALSE))
   sensorData <- data.table(sensorData)
   sensorData[TOA.MOR_10  == -1, TOA.MOR_10  := NA]
