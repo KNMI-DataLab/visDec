@@ -4,4 +4,5 @@
 #' @importFrom plyr llply
 #' @importFrom changepoint cpt.mean cpts
 #' @importFrom stats sd
+#' @importFrom utils read.csv
 NULL

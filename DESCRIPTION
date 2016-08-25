@@ -23,7 +23,8 @@ Imports:
     maptools,
     magrittr,
     plyr,
-    stats
+    stats,
+    utils
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
