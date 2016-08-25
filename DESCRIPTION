@@ -22,7 +22,8 @@ Imports:
     changepoint,
     maptools,
     magrittr,
-    plyr
+    plyr,
+    stats
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
