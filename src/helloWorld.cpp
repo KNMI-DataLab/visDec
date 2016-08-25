@@ -22,6 +22,6 @@ NumericVector timesTwo(NumericVector x) {
 // run after the compilation.
 //
 
-/*** R
-timesTwo(42)
-*/
+#/*** R
+# timesTwo(42)
+# */
