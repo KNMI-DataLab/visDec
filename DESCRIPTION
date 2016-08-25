@@ -1,7 +1,7 @@
 Package: visDec
 Title: Visibility Detection from Cameras
-Version: 0.0.0.9010
-Date: 2016-07-22
+Version: 0.0.0.9011
+Date: 2016-08-25
 Authors@R: c(person("Martin", "Roth", email = "roth@knmi.nl", role = c("aut", "cre")),
     person("Andrea", "Pagani", email = "pagani@knmi.nl", role = "aut"))
 Description: Visibility detection from cameras.
@@ -23,7 +23,8 @@ Imports:
     maptools,
     magrittr,
     plyr,
-    stats
+    stats,
+    utils
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1

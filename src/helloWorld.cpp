@@ -11,6 +11,8 @@ using namespace Rcpp;
 //   http://gallery.rcpp.org/
 //
 
+//' @useDynLib visDec
+//' @importFrom Rcpp evalCpp
 // [[Rcpp::export]]
 NumericVector timesTwo(NumericVector x) {
   return x * 2;
@@ -22,6 +24,6 @@ NumericVector timesTwo(NumericVector x) {
 // run after the compilation.
 //
 
-/*** R
-timesTwo(42)
-*/
+#/*** R
+# timesTwo(42)
+# */
