@@ -4,7 +4,7 @@ context("Filename parsing")
 
 midnightFile <- "./Input/Meetterrein_20151009_0000.jpg"
 standardFile <- "./Input/Meetterrein_20151009_0610.jpg"
-sensorTestFile <- "./Input/MOR_DeBilt_201510.txt"
+sensorTestFile <- "./Input/DeBiltMORSensor2015.csv"
 
 test_that("FileNameParser", {
   expect_match(FileNameParser(midnightFile, "na*me_yyyymmdd_hhmm.jpg")$filePrefix, "Meetterrein")
