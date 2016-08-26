@@ -22,7 +22,7 @@ FileNameParser <- function(fullFilename, pattern) {
   else stop("filename does not match specified pattern")
   dateTime <- as.POSIXct(paste(paste(year,month,day,sep="-"),
                                paste(hour,min,sep=":")),
-                         tz = "CET")
+                         tz = "UTC")
   return(data.table(filePrefix = filePrefix, filePath = fullFilename,
                     dateTime = dateTime))
 }
@@ -31,7 +31,7 @@ FileNameParser <- function(fullFilename, pattern) {
 #' @param fileInfoDT Data Table with image infromation
 UniqueDaysAndStation <- function(fileInfoDT) {
   dateOnly <- dateTime <- NULL
-  fileInfoDT[, dateOnly := as.Date(dateTime, tz = 'CET')]
+  fileInfoDT[, dateOnly := as.Date(dateTime, tz = 'UTC')]
   setkeyv(fileInfoDT, c("filePrefix","dateOnly"))
   uniqueDateStation <- subset(unique(fileInfoDT),
                               select=c("filePrefix", "dateOnly"))
