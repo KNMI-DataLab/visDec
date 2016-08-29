@@ -15,5 +15,12 @@ test_that("FileNameParser", {
   fileInfoDT <- FileNameParser(standardFile, "na*me_yyyymmdd_hhmm.jpg")
   expect_equal_to_reference(UniqueDaysAndStation(fileInfoDT), "./Reference/daysAndStationFiltered.rds")
 
+  fileInfoDT$dateTime <- fileInfoDT$dateTime+60*2 #adding 2 minutes sync issue
+  complete <- SynchronizeSensorPicture(ReadMORSensorData(sensorTestFile), fileInfoDT)
+  expect_equal_to_reference(complete, "./Reference/syncSensorPicture.rds")
+  sensorValues = ReadMORSensorData(sensorTestFile)
+  expect_match(paste(complete$TOA.MOR_10), paste(min(sensorValues[sensorValues$dateTime==as.POSIXlt("2015-10-09 06:10:00",tz = "UTC"),]$TOA.MOR_10, sensorValues[sensorValues$dateTime==as.POSIXlt("2015-10-09 06:20:00",tz = "UTC"),]$TOA.MOR_10)))
+
+
 
 })

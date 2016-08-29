@@ -8,7 +8,7 @@ ReadMORSensorData <- function(filenames) {
   sensorData <- data.table(sensorData)
   sensorData[TOA.MOR_10  == -1, TOA.MOR_10  := NA]
   #sensorData[, hhmmss := CorrectOurs(hhmmss)]
-  sensorData[, IT_DATETIME := as.POSIXct(sensorData[, IT_DATETIME], format = "%Y%m%d_%H%M%S", tz = "CET")]
+  sensorData[, IT_DATETIME := as.POSIXct(sensorData[, IT_DATETIME], format = "%Y%m%d_%H%M%S", tz = "UTC")]
   setnames(sensorData, "IT_DATETIME", "dateTime")
   #sensorData[, hhmmss := NULL]
   sensorData[, year   := year(dateTime)]
@@ -19,3 +19,29 @@ ReadMORSensorData <- function(filenames) {
   return(sensorData)
 }
 
+#' Synchronize the sensor reading to picture acquisition time
+#' @param sensorDataDT data table with sensor data
+#' @param imageInfoDT data table with image summary information
+#' @return data.table
+#' @export
+SynchronizeSensorPicture <- function(sensorDataDT, imageInfoDT){
+  imageInfoDT$dateTimeFW4 <- imageInfoDT$dateTime+4*60 #adding 4 minutes
+  imageInfoDT$dateTimeRW4 <- imageInfoDT$dateTime-4*60 #removing 4 minutes
+  setkey(imageInfoDT,dateTimeFW4)
+  setkey(sensorDataDT, dateTime)
+  imageInfoDT$dateTimeOrig <- imageInfoDT$dateTime
+  imageAndSensorFW4<-sensorDataDT[imageInfoDT, roll="nearest"]
+  setkey(imageInfoDT, dateTimeRW4)
+  imageAndSensorRW4<-sensorDataDT[imageInfoDT, roll="nearest"]
+  setnames(imageAndSensorRW4, "TOA.MOR_10", "TOA.MOR_10_RW")
+  setnames(imageAndSensorFW4, "TOA.MOR_10", "TOA.MOR_10_FW")
+  setkey(imageAndSensorRW4, dateTimeOrig)
+  setkey(imageAndSensorFW4, dateTimeOrig)
+  combined <- imageAndSensorRW4[imageAndSensorFW4]
+  combined[, TOA.MOR_10:= pmin(combined$TOA.MOR_10_FW, combined$TOA.MOR_10_RW)]
+  combined[, c("TOA.MOR_10_RW", "TOA.MOR_10_FW", "dateTime") := NULL]
+  combined[, grep("^i.*", colnames(combined)) := NULL]
+  combined[, grep("*W4$", colnames(combined)) := NULL]
+  setnames(combined, "dateTimeOrig", "dateTime")
+  combined
+}
