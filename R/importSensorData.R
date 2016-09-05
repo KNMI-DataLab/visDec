@@ -25,20 +25,21 @@ ReadMORSensorData <- function(filenames) {
 #' @return data.table
 #' @export
 SynchronizeSensorPicture <- function(sensorDataDT, imageInfoDT){
-  imageInfoDT$dateTimeFW4 <- imageInfoDT$dateTime+4*60 #adding 4 minutes
-  imageInfoDT$dateTimeRW4 <- imageInfoDT$dateTime-4*60 #removing 4 minutes
-  setkey(imageInfoDT,dateTimeFW4)
+  dateTime <- dateTimeFW4 <- dateTimeRW4 <- dateTimeOrig <- TOA.MOR_10 <- NULL
+  imageInfoDT[, dateTimeFW4 := dateTime + 4 * 60]
+  imageInfoDT[, dateTimeRW4 := dateTime - 4 * 60]
+  setkey(imageInfoDT, dateTimeFW4)
   setkey(sensorDataDT, dateTime)
-  imageInfoDT$dateTimeOrig <- imageInfoDT$dateTime
-  imageAndSensorFW4<-sensorDataDT[imageInfoDT, roll="nearest"]
+  imageInfoDT[, dateTimeOrig := dateTime]
+  imageAndSensorFW4 <- sensorDataDT[imageInfoDT, roll="nearest"]
   setkey(imageInfoDT, dateTimeRW4)
-  imageAndSensorRW4<-sensorDataDT[imageInfoDT, roll="nearest"]
+  imageAndSensorRW4 <- sensorDataDT[imageInfoDT, roll="nearest"]
   setnames(imageAndSensorRW4, "TOA.MOR_10", "TOA.MOR_10_RW")
   setnames(imageAndSensorFW4, "TOA.MOR_10", "TOA.MOR_10_FW")
   setkey(imageAndSensorRW4, dateTimeOrig)
   setkey(imageAndSensorFW4, dateTimeOrig)
   combined <- imageAndSensorRW4[imageAndSensorFW4]
-  combined[, TOA.MOR_10:= pmin(combined$TOA.MOR_10_FW, combined$TOA.MOR_10_RW)]
+  combined[, TOA.MOR_10 := pmin(combined$TOA.MOR_10_FW, combined$TOA.MOR_10_RW)]
   combined[, c("TOA.MOR_10_RW", "TOA.MOR_10_FW", "dateTime") := NULL]
   combined[, grep("^i.*", colnames(combined)) := NULL]
   combined[, grep("*W4$", colnames(combined)) := NULL]
