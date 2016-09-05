@@ -59,7 +59,7 @@ GetSunTimes <- function(data) {
 #' @param offsetAfterSunset offset to include time after sunset in minutes
 #' @export
 WindowFilterDayLightHours <- function(originalFileInfoDT, properties, offsetBeforeSunrise, offsetAfterSunrise, offsetBeforeSunset, offsetAfterSunset) {
-  isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- NULL
+  isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- toAnalyze <- NULL
   uniqueDaysStation <- UniqueDaysAndStation(originalFileInfoDT)
   mergedData        <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
   dataWithSunTimes  <- GetSunTimes(mergedData)
