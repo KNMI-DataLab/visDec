@@ -9,15 +9,17 @@ MergeDaysWithStationConfig <- function(dateStation, configDF) {
 #'latitude) and day
 #' @param originalFileInfoDT data table with image files information
 #' @param properties data table with specific information
+#' @param offsetBeforeSunrise offset to include time before sunrise in minutes
+#' @param offsetAfterSunset offset to include time after sunset in minutes
 #' @export
-FilterDayLightHours <- function(originalFileInfoDT, properties) {
+FilterDayLightHours <- function(originalFileInfoDT, properties, offsetBeforeSunrise, offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- NULL
   uniqueDaysStation <- UniqueDaysAndStation(originalFileInfoDT)
   mergedData        <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
   dataWithSunTimes  <- GetSunTimes(mergedData)
   combined          <- merge(originalFileInfoDT, dataWithSunTimes,
                              by.x = "dateOnly", by.y = "dateOnly")
-  combined[, isDay := dateTime > sunriseDateTime & dateTime < sunsetDateTime]
+  combined[, isDay := dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60]
 }
 
 #' Find the sunrise and sunset times given a date and lon lat location
@@ -28,20 +30,45 @@ GetSunTimes <- function(data) {
   #the values in the list at positions are: [5]: lon [6]:lat [8]:date
   fn <- function(x, direction) {
     sunriset(crds = matrix(c(as.numeric(x[5]), as.numeric(x[6])),nrow = 1),
-             dateTime = as.POSIXct(x[8], tz="CET"), direction = direction,
+             dateTime = as.POSIXct(x[8], tz="UTC"), direction = direction,
              POSIXct.out = TRUE)
   }
   sunriseTime <- apply(data, 1, fn, "sunrise")
   sunsetTime  <- apply(data, 1, fn, "sunset")
   tempSunrise <- as.data.table(do.call(rbind.data.frame, sunriseTime))
   tempSunset  <- as.data.table(do.call(rbind.data.frame, sunsetTime ))
-  tempSunrise[, date        := as.Date(time, tz = "CET")]
-  tempSunrise[, sunriseTime := strftime(time, format = "%T %Z", tz = "CET")]
-  tempSunset[ , date        := as.Date(time, tz = "CET")]
-  tempSunset[ , sunsetTime  := strftime(time, format = "%T %Z", tz = "CET")]
+  tempSunrise[, date        := as.Date(time, tz = "UTC")]
+  tempSunrise[, sunriseTime := strftime(time, format = "%T %Z", tz = "UTC")]
+  tempSunset[ , date        := as.Date(time, tz = "UTC")]
+  tempSunset[ , sunsetTime  := strftime(time, format = "%T %Z", tz = "UTC")]
   setnames(tempSunrise, old = c("time"), new = c("sunriseDateTime"))
   setnames(tempSunset,  old = c("time"), new = c("sunsetDateTime"))
   sunriseSunsetTimes <- merge(tempSunrise, tempSunset,
                               by.x = "date", by.y = "date")
   merge(data, sunriseSunsetTimes, by.x ="dateOnly", by.y = "date")
 }
+
+
+#' Filter the lighthours given the information of the station (longitude,
+#'latitude) and day
+#' @param originalFileInfoDT data table with image files information
+#' @param properties data table with specific information
+#' @param offsetBeforeSunrise offset to include time before sunrise in minutes
+#' @param offsetAfterSunrise offset to include time after sunrise in minutes
+#' @param offsetBeforeSunset offset to include time before sunset in minutes
+#' @param offsetAfterSunset offset to include time after sunset in minutes
+#' @export
+WindowFilterDayLightHours <- function(originalFileInfoDT, properties, offsetBeforeSunrise, offsetAfterSunrise, offsetBeforeSunset, offsetAfterSunset) {
+  isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- NULL
+  uniqueDaysStation <- UniqueDaysAndStation(originalFileInfoDT)
+  mergedData        <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
+  dataWithSunTimes  <- GetSunTimes(mergedData)
+  combined          <- merge(originalFileInfoDT, dataWithSunTimes,
+                             by.x = "dateOnly", by.y = "dateOnly")
+  combined[, toAnalyze := (dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunriseDateTime + offsetAfterSunrise * 60) | (dateTime > sunsetDateTime - offsetBeforeSunset * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60)]
+}
+
+
+
+
+

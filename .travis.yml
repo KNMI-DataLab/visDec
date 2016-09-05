@@ -8,6 +8,7 @@ branches:
     - haziness
     - sunnyday
     - quickTwente
+    - chronos
 
 language: r
 sudo: required
