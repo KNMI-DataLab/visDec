@@ -24,7 +24,8 @@ Imports:
     magrittr,
     plyr,
     stats,
-    utils
+    utils,
+    lubridate
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
