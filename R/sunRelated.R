@@ -76,12 +76,12 @@ WindowFilterDayLightHours <- function(originalFileInfoDT, properties, offsetBefo
 #' @param originalFileInfoDT data table with image files information
 #' @param initialTime initial time in HH:MM
 #' @param finalTime final time in HH:MM
-#' @importFrom lubridate hour minute
+#' @importFrom lubridate minute
 #' @export
 TimeWindowFilter <- function(originalFileInfoDT, initialTime, finalTime){
   initialHHMM<- unlist(strsplit(initialTime, ":"))
   finalHHMM<- unlist(strsplit(finalTime, ":"))
-  filtered <- originalFileInfoDT[(lubridate::hour(dateTime) > as.numeric(initialHHMM[[1]]) |  (lubridate::hour(dateTime) == as.numeric(initialHHMM[[1]]) & lubridate::minute(dateTime) >= as.numeric(initialHHMM[[2]]))) & (lubridate::hour(dateTime) < as.numeric(finalHHMM[[1]]) | (lubridate::hour(dateTime) == as.numeric(finalHHMM[[1]]) & lubridate::minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
+  filtered <- originalFileInfoDT[(hour(dateTime) > as.numeric(initialHHMM[[1]]) |  (hour(dateTime) == as.numeric(initialHHMM[[1]]) & minute(dateTime) >= as.numeric(initialHHMM[[2]]))) & (hour(dateTime) < as.numeric(finalHHMM[[1]]) | (hour(dateTime) == as.numeric(finalHHMM[[1]]) & minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
   filtered
 }
 

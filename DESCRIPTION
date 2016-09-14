@@ -34,3 +34,5 @@ Suggests: knitr,
     iterators,
     covr
 VignetteBuilder: knitr
+SystemRequirements: libx11-dev,
+    libfftw3-dev
