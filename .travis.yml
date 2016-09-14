@@ -17,6 +17,7 @@ warnings_are_errors: true
 
 apt_packages:
  - libfftw3-dev
+ - libx11-dev
 r_binary_packages:
  - png
  - jpeg
