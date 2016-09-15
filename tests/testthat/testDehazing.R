@@ -47,7 +47,7 @@ test_that("Same input same output", {
 
 
   avgHorizTrans <- GetHorizAvgTrans(im)
-  expect_equal_to_reference(avgHorizTrans, "avrHorizTransReference.rds")
+  expect_equal_to_reference(avgHorizTrans, "./Reference/avrHorizTransReference.rds")
 
   expect_equal_to_reference(TransmissionChangepoint(avgHorizTrans), "./Reference/transmissionChangepoint.rds")
   expect_equal_to_reference(TransmissionSmoothness(avgHorizTrans), "./Reference/transmissionSmoothness.rds")
