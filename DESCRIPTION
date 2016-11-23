@@ -11,20 +11,16 @@ Imports:
     Rcpp,
     data.table,
     imager (>= 0.20.1),
-    R.matlab,
     matlab,
-    caret,
     abind,
-    tree,
     Matrix,
-    pracma,
-    ptw,
     changepoint,
     maptools,
     magrittr,
     plyr,
     stats,
-    utils
+    utils,
+    lubridate
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
@@ -38,3 +34,5 @@ Suggests: knitr,
     iterators,
     covr
 VignetteBuilder: knitr
+SystemRequirements: libx11-dev,
+    libfftw3-dev

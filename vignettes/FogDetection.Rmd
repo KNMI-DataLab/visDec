@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 ## Example how to use visDec
 ### Load required libaries
-```{r, message=FALSE}
+```{r, include=FALSE, message=FALSE}
 library(imager)
 library(data.table)
 library(ggplot2)
@@ -28,14 +28,49 @@ library(foreach)
 library(iterators)
 library(doParallel)
 registerDoParallel(cores=2)
-```
-
-### Read example pictures
-```{r, ExamplePictures}
+#```
+#
+#### Read example pictures
+#```{r, ExamplePictures}
 path <- system.file("extdata/Meetterrein", package="visDec")
 filenames <- list.files(path,
                         pattern=glob2rx("Meetterrein_201510*.jpg"),
                         full.names=TRUE)
+#```{r, BaseInformationAndFiltering}
+imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
+  FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
+}
+
+daylightImages <- FilterDayLightHours(imageSummary, properties, 0, 0)
+#```
+
+#```{r, FeatureCalculation}
+
+ReturnFeatures <- function(filePath) {
+  im <- subim(load.image(filePath), y > 16) 
+  imT <- RGBtoHSV(im)
+  transmission <- GetHorizAvgTrans(im)
+  list(meanEdge = DetectMeanEdges(im, 3),
+       changePoint = TransmissionChangepoint(transmission),
+       smoothness = TransmissionSmoothness(transmission),
+       meanHue = mean(channel(imT, 1)),
+       meanSaturation = mean(channel(imT, 2)),
+       meanBrightness = mean(channel(imT, 3)) )
+}
+
+featureNames <- c("meanEdge", "changePoint", "smoothness",
+                  "meanHue", "meanSaturation", "meanBrightness")
+
+
+daylightImages[, id := 1:.N]
+setkey(daylightImages, id)
+
+imageSummary <- foreach(id = iter(daylightImages[, id]), .combine = rbind) %dopar% {
+  tmp <- daylightImages[id, ]
+  tmp[, eval(featureNames) := ReturnFeatures(filePath), by = dateTime]
+}
+
+#```
 ```
 
 ### Edges in a clear situation
@@ -59,39 +94,6 @@ par(old_par)
 
 ### Computing basis image statistics
 
-```{r, imageSummary}
-imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
-  FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
-}
-
-daylightImages <- FilterDayLightHours(imageSummary, properties, 0, 0)[isDay == TRUE]
-
-
-ReturnFeatures <- function(filePath) {
-  im <- subim(load.image(filePath), y > 16) 
-  imT <- RGBtoHSV(im)
-  transmission <- GetHorizAvgTrans(im)
-  list(meanEdge = DetectMeanEdges(im, 3),
-       changePoint = TransmissionChangepoint(transmission),
-       smoothness = TransmissionSmoothness(transmission),
-       meanHue = mean(channel(imT, 1)),
-       meanSaturation = mean(channel(imT, 2)),
-       meanBrightness = mean(channel(imT, 3)) )
-}
-
-featureNames <- c("meanEdge", "changePoint", "smoothness",
-                  "meanHue", "meanSaturation", "meanBrightness")
-
-
-daylightImages[, id := 1:.N]
-setkey(daylightImages, id)
-
-imageSummary <- foreach(id = iter(daylightImages[, id]), .packages = c('data.table'), .combine = rbind) %dopar% {
-  tmp <- daylightImages[id, ]
-  tmp[, eval(featureNames) := ReturnFeatures(filePath), by = dateTime]
-}
-
-```
 
 
 
@@ -105,7 +107,7 @@ sensorData <- ReadMORSensorData(sensorFiles)
 setkey(sensorData, dateTime)
 setkey(imageSummary, dateTime)
 imageSummary <- merge(imageSummary, sensorData)
-imageSummary[, MOR := TOA.MOR_10, by = dateTime]
+invisible(imageSummary[, MOR := TOA.MOR_10, by = dateTime]) # see .e.g https://github.com/rstudio/rmarkdown/issues/829
 ```
 
 ### Time series
@@ -123,10 +125,10 @@ ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
 
 ### Scatter plots
 ```{r, ScatterPlots, fig.show='hold'}
-imageSummary[, visibility := factor(2000)]
-imageSummary[MOR < 1000, visibility := factor(1000)]
-imageSummary[MOR < 500, visibility := factor(500)]
-imageSummary[MOR < 200, visibility := factor(200)]
+invisible(imageSummary[, visibility := factor(2000)])
+invisible(imageSummary[MOR < 1000, visibility := factor(1000)])
+invisible(imageSummary[MOR < 500, visibility := factor(500)])
+invisible(imageSummary[MOR < 200, visibility := factor(200)])
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanEdge, col = visibility)) + geom_point()
 #ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(FS261), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)

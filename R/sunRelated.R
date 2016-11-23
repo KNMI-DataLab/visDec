@@ -20,6 +20,8 @@ FilterDayLightHours <- function(originalFileInfoDT, properties, offsetBeforeSunr
   combined          <- merge(originalFileInfoDT, dataWithSunTimes,
                              by.x = "dateOnly", by.y = "dateOnly")
   combined[, isDay := dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60]
+  combined <- combined[isDay == TRUE]
+  combined[,isDay := NULL]
 }
 
 #' Find the sunrise and sunset times given a date and lon lat location
@@ -57,7 +59,6 @@ GetSunTimes <- function(data) {
 #' @param offsetAfterSunrise offset to include time after sunrise in minutes
 #' @param offsetBeforeSunset offset to include time before sunset in minutes
 #' @param offsetAfterSunset offset to include time after sunset in minutes
-#' @export
 WindowFilterDayLightHours <- function(originalFileInfoDT, properties, offsetBeforeSunrise, offsetAfterSunrise, offsetBeforeSunset, offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- toAnalyze <- NULL
   uniqueDaysStation <- UniqueDaysAndStation(originalFileInfoDT)
@@ -66,8 +67,24 @@ WindowFilterDayLightHours <- function(originalFileInfoDT, properties, offsetBefo
   combined          <- merge(originalFileInfoDT, dataWithSunTimes,
                              by.x = "dateOnly", by.y = "dateOnly")
   combined[, toAnalyze := (dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunriseDateTime + offsetAfterSunrise * 60) | (dateTime > sunsetDateTime - offsetBeforeSunset * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60)]
+  combined <- combined[toAnalyze == TRUE]
+  combined[,toAnalyze := NULL]
 }
 
+
+#' Filter the images based on the time window of interest
+#' @param originalFileInfoDT data table with image files information
+#' @param initialTime initial time in HH:MM
+#' @param finalTime final time in HH:MM
+#' @importFrom lubridate minute
+#' @export
+TimeWindowFilter <- function(originalFileInfoDT, initialTime, finalTime){
+  dateTime <- NULL
+  initialHHMM<- unlist(strsplit(initialTime, ":"))
+  finalHHMM<- unlist(strsplit(finalTime, ":"))
+  filtered <- originalFileInfoDT[(hour(dateTime) > as.numeric(initialHHMM[[1]]) |  (hour(dateTime) == as.numeric(initialHHMM[[1]]) & minute(dateTime) >= as.numeric(initialHHMM[[2]]))) & (hour(dateTime) < as.numeric(finalHHMM[[1]]) | (hour(dateTime) == as.numeric(finalHHMM[[1]]) & minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
+  filtered
+}
 
 
 
