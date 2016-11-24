@@ -72,13 +72,6 @@ imageSummary <- foreach(id = iter(daylightImages[, id]), .combine = rbind) %dopa
   tmp <- daylightImages[id, ]
   tmp[, eval(featureNames) := ReturnFeatures(filePath), by = dateTime]
 }
-imageSummary[, id := 1:.N]
-setkey(imageSummary, id)
-imageSummary <- foreach(id = iter(imageSummary[, id]), .combine = rbind) %dopar% {
-  tmp <- imageSummary[id, ]
-  tmp[, eval(featureNames) := ReturnFeatures(filePath), by = dateTime]
-}
-
 #```
 ```
 
