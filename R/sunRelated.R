@@ -71,16 +71,16 @@ WindowFilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise,
 
 
 #' Filter the images based on the time window of interest
-#' @param originalFileInfoDT data table with image files information
+#' @param fileInfo data table with image files information
 #' @param initialTime initial time in HH:MM
 #' @param finalTime final time in HH:MM
 #' @importFrom lubridate minute
 #' @export
-TimeWindowFilter <- function(originalFileInfoDT, initialTime, finalTime){
+TimeWindowFilter <- function(fileInfo, initialTime, finalTime){
   dateTime    <- NULL
   initialHHMM <- unlist(strsplit(initialTime, ":"))
   finalHHMM   <- unlist(strsplit(finalTime, ":"))
-  filtered    <- originalFileInfoDT[(hour(dateTime) > as.numeric(initialHHMM[[1]]) |  (hour(dateTime) == as.numeric(initialHHMM[[1]]) & minute(dateTime) >= as.numeric(initialHHMM[[2]]))) & (hour(dateTime) < as.numeric(finalHHMM[[1]]) | (hour(dateTime) == as.numeric(finalHHMM[[1]]) & minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
+  filtered    <- fileInfo[(hour(dateTime) > as.numeric(initialHHMM[[1]]) | (hour(dateTime) == as.numeric(initialHHMM[[1]]) & minute(dateTime) >= as.numeric(initialHHMM[[2]]))) & (hour(dateTime) < as.numeric(finalHHMM[[1]]) | (hour(dateTime) == as.numeric(finalHHMM[[1]]) & minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
   filtered
 }
 

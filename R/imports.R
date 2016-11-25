@@ -4,7 +4,7 @@
 #' @importFrom plyr llply
 #' @importFrom changepoint cpt.mean cpts
 #' @importFrom stats sd
-#' @importFrom utils read.csv
+#' @importFrom utils read.csv packageVersion
 #' @importFrom fractaldim fd.estimate
 NULL
 
