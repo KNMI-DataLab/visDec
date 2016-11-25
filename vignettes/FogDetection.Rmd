@@ -28,10 +28,10 @@ library(foreach)
 library(iterators)
 library(doParallel)
 registerDoParallel(cores=2)
-#```
-#
+```
+
 #### Read example pictures
-#```{r, ExamplePictures}
+```{r, ExamplePictures}
 path <- system.file("extdata/Meetterrein", package="visDec")
 filenames <- list.files(path,
                         pattern=glob2rx("Meetterrein_201510*.jpg"),
@@ -42,9 +42,9 @@ imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
 }
 
 daylightImages <- FilterDayLightHours(imageSummary, properties, 0, 0)
-#```
+```
 
-#```{r, FeatureCalculation}
+```{r, FeatureCalculation}
 
 ReturnFeatures <- function(filePath) {
   im <- subim(load.image(filePath), y > 16) 
@@ -65,14 +65,13 @@ featureNames <- c("meanEdge", "changePoint", "smoothness", "fractaldim",
                   "meanHue", "meanSaturation", "meanBrightness")
 
 
-daylightImages[, id := 1:.N]
+invisible(daylightImages[, id := 1:.N])
 setkey(daylightImages, id)
 
 imageSummary <- foreach(id = iter(daylightImages[, id]), .combine = rbind) %dopar% {
   tmp <- daylightImages[id, ]
   tmp[, eval(featureNames) := ReturnFeatures(filePath), by = dateTime]
 }
-#```
 ```
 
 ### Edges in a clear situation
