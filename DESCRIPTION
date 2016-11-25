@@ -10,7 +10,7 @@ Depends:
 Imports:
     Rcpp,
     data.table,
-    imager (>= 0.20.1),
+    imager (> 0.20.1),
     matlab,
     abind,
     Matrix,
