@@ -1,15 +1,5 @@
 # Sample .travis.yml for R projects
 
-# whitelist
-branches:
-  only:
-    - master
-    - develop
-    - haziness
-    - sunnyday
-    - quickTwente
-    - chronos
-
 language: r
 sudo: required
 cache: packages
