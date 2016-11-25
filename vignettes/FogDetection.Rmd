@@ -40,7 +40,9 @@ filenames <- list.files(path,
 imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
   FileNameParser(file, "na*me_yyyymmdd_hhmm.jpg")
 }
+```
 
+```{r, FilterImages}
 daylightImages <- FilterDayLightHours(imageSummary, properties, 0, 0)
 ```
 
