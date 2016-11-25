@@ -53,12 +53,15 @@ ReturnFeatures <- function(filePath) {
   list(meanEdge = DetectMeanEdges(im, 3),
        changePoint = TransmissionChangepoint(transmission),
        smoothness = TransmissionSmoothness(transmission),
+       fractaldim = GetFractalDim(transmission),
+       fractalDim = GetFractalDim(im),
        meanHue = mean(channel(imT, 1)),
        meanSaturation = mean(channel(imT, 2)),
        meanBrightness = mean(channel(imT, 3)) )
 }
 
-featureNames <- c("meanEdge", "changePoint", "smoothness",
+featureNames <- c("meanEdge", "changePoint", "smoothness", "fractaldim",
+                  "fractalDim",
                   "meanHue", "meanSaturation", "meanBrightness")
 
 
@@ -69,7 +72,6 @@ imageSummary <- foreach(id = iter(daylightImages[, id]), .combine = rbind) %dopa
   tmp <- daylightImages[id, ]
   tmp[, eval(featureNames) := ReturnFeatures(filePath), by = dateTime]
 }
-
 #```
 ```
 
@@ -115,13 +117,20 @@ invisible(imageSummary[, MOR := TOA.MOR_10, by = dateTime]) # see .e.g https://g
 ggplot(imageSummary, aes(x = dateTime, y = meanEdge)) + geom_line() + xlab("")
 ggplot(imageSummary, aes(x = dateTime, y= MOR)) + geom_line() +
   xlab("") 
+ggplot(imageSummary,
+       aes(x = dateTime, y = fractaldim)) + geom_line() + xlab("")
+ggplot(imageSummary,
+       aes(x = dateTime, y = fractalDim)) + geom_line() + xlab("")
 ```
 
 ```{r, DayOnly, fig.show='hold'}
 ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
        aes(x = dateTime, y = meanEdge)) + geom_line() + xlab("")
+ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
+       aes(x = dateTime, y = fractaldim)) + geom_line() + xlab("")
+ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
+       aes(x = dateTime, y = fractalDim)) + geom_line() + xlab("")
 ```
-
 
 ### Scatter plots
 ```{r, ScatterPlots, fig.show='hold'}
@@ -129,11 +138,12 @@ invisible(imageSummary[, visibility := factor(2000)])
 invisible(imageSummary[MOR < 1000, visibility := factor(1000)])
 invisible(imageSummary[MOR < 500, visibility := factor(500)])
 invisible(imageSummary[MOR < 200, visibility := factor(200)])
-ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanEdge, col = visibility)) + geom_point()
 #ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(FS261), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanEdge, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = changePoint, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = smoothness, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = fractaldim, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
+ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = fractalDim, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanHue, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanSaturation, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)
 ggplot(imageSummary[hour %in% seq(7, 16, by = 1), ], aes(x = log(MOR), y = meanBrightness, col = visibility)) + geom_point() + geom_quantile(aes(col=NULL), quantiles=0.5)

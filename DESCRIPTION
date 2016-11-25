@@ -20,7 +20,8 @@ Imports:
     plyr,
     stats,
     utils,
-    lubridate
+    lubridate,
+    fractaldim
 License: LGPL
 LazyData: true
 RoxygenNote: 5.0.1
