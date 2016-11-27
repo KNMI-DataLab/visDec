@@ -7,6 +7,7 @@
 #' @export
 FilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- NULL
+  imagePrefix <- filePrefix <- dateOnly <- NULL
   uniqueDaysStation <- UniqueDaysAndStation(fileInfo)
   properties <- as.data.table(properties)
   setkey(properties, imagePrefix)
@@ -15,7 +16,7 @@ FilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offse
   dataWithSunTimes  <- GetSunTimes(mergedData)
   setkey(dataWithSunTimes, dateOnly)
   setkey(fileInfo, dateOnly)
-  combined          <- merge(fileInfo, dataWithSunTimes, by = "dateOnly")
+  combined          <- merge(fileInfo, dataWithSunTimes, by = "dateOnly", allow.cartesian=TRUE)
   combined[, isDay := dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60]
   combined <- combined[isDay == TRUE]
   combined[, isDay := NULL]
@@ -74,13 +75,17 @@ WindowFilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise,
 #' @param fileInfo data table with image files information
 #' @param initialTime initial time in HH:MM
 #' @param finalTime final time in HH:MM
-#' @importFrom lubridate minute
 #' @export
 TimeWindowFilter <- function(fileInfo, initialTime, finalTime){
   dateTime    <- NULL
   initialHHMM <- unlist(strsplit(initialTime, ":"))
   finalHHMM   <- unlist(strsplit(finalTime, ":"))
-  filtered    <- fileInfo[(hour(dateTime) > as.numeric(initialHHMM[[1]]) | (hour(dateTime) == as.numeric(initialHHMM[[1]]) & minute(dateTime) >= as.numeric(initialHHMM[[2]]))) & (hour(dateTime) < as.numeric(finalHHMM[[1]]) | (hour(dateTime) == as.numeric(finalHHMM[[1]]) & minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
+  filtered    <- fileInfo[(hour(dateTime) > as.numeric(initialHHMM[[1]]) |
+                             (hour(dateTime) == as.numeric(initialHHMM[[1]]) &
+                                minute(dateTime) >= as.numeric(initialHHMM[[2]]))) &
+                            (hour(dateTime) < as.numeric(finalHHMM[[1]]) |
+                               (hour(dateTime) == as.numeric(finalHHMM[[1]]) &
+                                  minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
   filtered
 }
 

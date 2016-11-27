@@ -33,7 +33,6 @@ UniqueDaysAndStation <- function(fileInfoDT) {
   dateOnly <- dateTime <- NULL
   fileInfoDT[, dateOnly := as.Date(dateTime, tz = 'UTC')]
   setkeyv(fileInfoDT, c("filePrefix","dateOnly"))
-  uniqueDateStation <- subset(unique(fileInfoDT),
-                              select=c("filePrefix", "dateOnly"))
-  uniqueDateStation
+  stationDate <- fileInfoDT[, .(filePrefix, dateOnly)]
+  subset(unique(stationDate))
 }
