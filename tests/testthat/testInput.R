@@ -13,7 +13,7 @@ test_that("FileNameParser", {
   expect_equal_to_reference(ReadMORSensorData(sensorTestFile), "./Reference/sensorOutput.rds")
 
   fileInfoDT <- FileNameParser(standardFile, "na*me_yyyymmdd_hhmm.jpg")
-  expect_equal_to_reference(UniqueDaysAndStation(fileInfoDT), "./Reference/daysAndStationFiltered.rds")
+  expect_equal_to_reference(UniqueDaysPerStation(fileInfoDT), "./Reference/daysAndStationFiltered.rds")
 
   fileInfoDT$dateTime <- fileInfoDT$dateTime+60*2 #adding 2 minutes sync issue
   complete <- SynchronizeSensorPicture(ReadMORSensorData(sensorTestFile), fileInfoDT)

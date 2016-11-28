@@ -4,10 +4,10 @@
 \alias{TimeWindowFilter}
 \title{Filter the images based on the time window of interest}
 \usage{
-TimeWindowFilter(originalFileInfoDT, initialTime, finalTime)
+TimeWindowFilter(fileInfo, initialTime, finalTime)
 }
 \arguments{
-\item{originalFileInfoDT}{data table with image files information}
+\item{fileInfo}{data table with image files information}
 
 \item{initialTime}{initial time in HH:MM}
 

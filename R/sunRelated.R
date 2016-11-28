@@ -1,27 +1,25 @@
-#' Merge the information of configuration file and days and station of interest
-#' @param dateStation Data Table with date of observation and station
-#' @param configDF Data Table with station information (e.g., lon, lat, id)
-MergeDaysWithStationConfig <- function(dateStation, configDF) {
-  merge(configDF, dateStation, by.x = "imagePrefix", by.y = "filePrefix")
-}
-
 #' Filter the lighthours given the information of the station (longitude,
 #'latitude) and day
-#' @param originalFileInfoDT data table with image files information
+#' @param fileInfo data table with image files information
 #' @param properties data table with specific information
 #' @param offsetBeforeSunrise offset to include time before sunrise in minutes
 #' @param offsetAfterSunset offset to include time after sunset in minutes
 #' @export
-FilterDayLightHours <- function(originalFileInfoDT, properties, offsetBeforeSunrise, offsetAfterSunset) {
+FilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- NULL
-  uniqueDaysStation <- UniqueDaysAndStation(originalFileInfoDT)
-  mergedData        <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
+  imagePrefix <- filePrefix <- dateOnly <- NULL
+  uniqueDaysStation <- UniqueDaysPerStation(fileInfo)
+  properties <- as.data.table(properties)
+  setkey(properties, imagePrefix)
+  setkey(uniqueDaysStation, filePrefix)
+  mergedData        <- merge(properties, uniqueDaysStation, by.x = "imagePrefix", by.y = "filePrefix")
   dataWithSunTimes  <- GetSunTimes(mergedData)
-  combined          <- merge(originalFileInfoDT, dataWithSunTimes,
-                             by.x = "dateOnly", by.y = "dateOnly")
+  setkey(dataWithSunTimes, dateOnly)
+  setkey(fileInfo, dateOnly)
+  combined          <- merge(fileInfo, dataWithSunTimes, by = "dateOnly", allow.cartesian=TRUE)
   combined[, isDay := dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60]
   combined <- combined[isDay == TRUE]
-  combined[,isDay := NULL]
+  combined[, isDay := NULL]
 }
 
 #' Find the sunrise and sunset times given a date and lon lat location
@@ -45,27 +43,28 @@ GetSunTimes <- function(data) {
   tempSunset[ , sunsetTime  := strftime(time, format = "%T %Z", tz = "UTC")]
   setnames(tempSunrise, old = c("time"), new = c("sunriseDateTime"))
   setnames(tempSunset,  old = c("time"), new = c("sunsetDateTime"))
-  sunriseSunsetTimes <- merge(tempSunrise, tempSunset,
-                              by.x = "date", by.y = "date")
+  setkey(tempSunrise, date)
+  setkey(tempSunset, date)
+  sunriseSunsetTimes <- merge(tempSunrise, tempSunset, by = "date")
   merge(data, sunriseSunsetTimes, by.x ="dateOnly", by.y = "date")
 }
 
 
 #' Filter the lighthours given the information of the station (longitude,
 #'latitude) and day
-#' @param originalFileInfoDT data table with image files information
+#' @param fileInfo data table with image files information
 #' @param properties data table with specific information
 #' @param offsetBeforeSunrise offset to include time before sunrise in minutes
 #' @param offsetAfterSunrise offset to include time after sunrise in minutes
 #' @param offsetBeforeSunset offset to include time before sunset in minutes
 #' @param offsetAfterSunset offset to include time after sunset in minutes
-WindowFilterDayLightHours <- function(originalFileInfoDT, properties, offsetBeforeSunrise, offsetAfterSunrise, offsetBeforeSunset, offsetAfterSunset) {
+WindowFilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offsetAfterSunrise, offsetBeforeSunset, offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- toAnalyze <- NULL
-  uniqueDaysStation <- UniqueDaysAndStation(originalFileInfoDT)
-  mergedData        <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
+  uniqueDaysStation <- UniqueDaysPerStation(fileInfo)
+  mergedData        <- merge(properties, uniqueDaysStation,
+                             by.x = "imagePrefix", by.y = "filePrefix")
   dataWithSunTimes  <- GetSunTimes(mergedData)
-  combined          <- merge(originalFileInfoDT, dataWithSunTimes,
-                             by.x = "dateOnly", by.y = "dateOnly")
+  combined          <- merge(fileInfo, dataWithSunTimes, by = "dateOnly")
   combined[, toAnalyze := (dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunriseDateTime + offsetAfterSunrise * 60) | (dateTime > sunsetDateTime - offsetBeforeSunset * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60)]
   combined <- combined[toAnalyze == TRUE]
   combined[,toAnalyze := NULL]
@@ -73,16 +72,20 @@ WindowFilterDayLightHours <- function(originalFileInfoDT, properties, offsetBefo
 
 
 #' Filter the images based on the time window of interest
-#' @param originalFileInfoDT data table with image files information
+#' @param fileInfo data table with image files information
 #' @param initialTime initial time in HH:MM
 #' @param finalTime final time in HH:MM
-#' @importFrom lubridate minute
 #' @export
-TimeWindowFilter <- function(originalFileInfoDT, initialTime, finalTime){
-  dateTime <- NULL
-  initialHHMM<- unlist(strsplit(initialTime, ":"))
-  finalHHMM<- unlist(strsplit(finalTime, ":"))
-  filtered <- originalFileInfoDT[(hour(dateTime) > as.numeric(initialHHMM[[1]]) |  (hour(dateTime) == as.numeric(initialHHMM[[1]]) & minute(dateTime) >= as.numeric(initialHHMM[[2]]))) & (hour(dateTime) < as.numeric(finalHHMM[[1]]) | (hour(dateTime) == as.numeric(finalHHMM[[1]]) & minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
+TimeWindowFilter <- function(fileInfo, initialTime, finalTime){
+  dateTime    <- NULL
+  initialHHMM <- unlist(strsplit(initialTime, ":"))
+  finalHHMM   <- unlist(strsplit(finalTime, ":"))
+  filtered    <- fileInfo[(hour(dateTime) > as.numeric(initialHHMM[[1]]) |
+                             (hour(dateTime) == as.numeric(initialHHMM[[1]]) &
+                                minute(dateTime) >= as.numeric(initialHHMM[[2]]))) &
+                            (hour(dateTime) < as.numeric(finalHHMM[[1]]) |
+                               (hour(dateTime) == as.numeric(finalHHMM[[1]]) &
+                                  minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
   filtered
 }
 

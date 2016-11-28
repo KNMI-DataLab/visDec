@@ -5,11 +5,11 @@
 \title{Filter the lighthours given the information of the station (longitude,
 latitude) and day}
 \usage{
-WindowFilterDayLightHours(originalFileInfoDT, properties, offsetBeforeSunrise,
+WindowFilterDayLightHours(fileInfo, properties, offsetBeforeSunrise,
   offsetAfterSunrise, offsetBeforeSunset, offsetAfterSunset)
 }
 \arguments{
-\item{originalFileInfoDT}{data table with image files information}
+\item{fileInfo}{data table with image files information}
 
 \item{properties}{data table with specific information}
 

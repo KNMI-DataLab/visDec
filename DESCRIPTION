@@ -1,7 +1,7 @@
 Package: visDec
 Title: Visibility Detection from Cameras
-Version: 0.0.0.9013
-Date: 2016-11-25
+Version: 0.0.0.9014
+Date: 2016-11-28
 Authors@R: c(person("Martin", "Roth", email = "roth@knmi.nl", role = c("aut", "cre")),
     person("Andrea", "Pagani", email = "pagani@knmi.nl", role = "aut"))
 Description: Visibility detection from cameras.
@@ -9,7 +9,7 @@ Depends:
     R (>= 3.2.2)
 Imports:
     Rcpp,
-    data.table,
+    data.table (>= 1.9.8),
     imager (> 0.20.1),
     matlab,
     abind,
@@ -20,7 +20,6 @@ Imports:
     plyr,
     stats,
     utils,
-    lubridate,
     fractaldim
 License: LGPL
 LazyData: true

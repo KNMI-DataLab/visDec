@@ -17,7 +17,7 @@ test_that("check day", {
   fileInfo <- data.table::rbindlist(lapply(files, FileNameParser,
                                            pattern="na*me_yyyymmdd_hhmm.jpg"))
 
-  #uniqueDaysStation <- UniqueDaysAndStation(imageSummary)
+  #uniqueDaysStation <- UniqueDaysPerStation(imageSummary)
   #mergedStationDays <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
   #print(FilterDayLightHours(mergedStationDays, imageSummary))
   tmp <- FilterDayLightHours(fileInfo, properties, 0, 0)
