@@ -28,11 +28,11 @@ FileNameParser <- function(fullFilename, pattern) {
 }
 
 #' Finds if an observation falls into the day time or not
-#' @param fileInfoDT Data Table with image infromation
-UniqueDaysAndStation <- function(fileInfoDT) {
-  dateOnly <- dateTime <- NULL
-  fileInfoDT[, dateOnly := as.Date(dateTime, tz = 'UTC')]
-  setkeyv(fileInfoDT, c("filePrefix","dateOnly"))
-  stationDate <- fileInfoDT[, .(filePrefix, dateOnly)]
+#' @param fileInfo Data Table with image infromation
+UniqueDaysPerStation <- function(fileInfo) {
+  dateOnly <- dateTime <- filePrefix <- NULL
+  fileInfo[, dateOnly := as.Date(dateTime, tz = 'UTC')]
+  setkeyv(fileInfo, c("filePrefix","dateOnly"))
+  stationDate <- fileInfo[, list(filePrefix, dateOnly)]
   subset(unique(stationDate))
 }

@@ -8,7 +8,7 @@
 FilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- NULL
   imagePrefix <- filePrefix <- dateOnly <- NULL
-  uniqueDaysStation <- UniqueDaysAndStation(fileInfo)
+  uniqueDaysStation <- UniqueDaysPerStation(fileInfo)
   properties <- as.data.table(properties)
   setkey(properties, imagePrefix)
   setkey(uniqueDaysStation, filePrefix)
@@ -60,7 +60,7 @@ GetSunTimes <- function(data) {
 #' @param offsetAfterSunset offset to include time after sunset in minutes
 WindowFilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offsetAfterSunrise, offsetBeforeSunset, offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- toAnalyze <- NULL
-  uniqueDaysStation <- UniqueDaysAndStation(fileInfo)
+  uniqueDaysStation <- UniqueDaysPerStation(fileInfo)
   mergedData        <- merge(properties, uniqueDaysStation,
                              by.x = "imagePrefix", by.y = "filePrefix")
   dataWithSunTimes  <- GetSunTimes(mergedData)
