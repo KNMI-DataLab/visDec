@@ -25,7 +25,7 @@ GetPaddedImage <- function(image, padSize) {
 #' @param image The image object
 #' @param winSize Should probably be renamed
 #' @export
-#' @importFrom imager pad extract_patches_min width height channels as.cimg
+#' @importFrom imager pad patchstat width height channels as.cimg
 #' @importFrom matlab padarray
 #' @importFrom abind abind
 #' @export
@@ -38,7 +38,7 @@ GetDarkChannel <- function(image, winSize=15) {
   grid             <- expand.grid(width = 1:m, height = 1:n)
   winsize          <- rep(winSize - 1, nrow(grid))
   offset           <- padSize - 1
-  darkChannel      <- extract_patches_min(padIm, grid[, 1] + offset,
+  darkChannel      <- patchstat(padIm, 'min', grid[, 1] + offset,
                                           grid[, 2] + offset, winsize, winsize)
   dim(darkChannel) <- c(m, n)
   darkChannel

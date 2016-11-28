@@ -47,7 +47,10 @@ test_that("Same input same output", {
 
 
   avgHorizTrans <- GetHorizAvgTrans(im)
-  expect_equal_to_reference(avgHorizTrans, "avrHorizTransReference.rds")
+  expect_equal_to_reference(avgHorizTrans, "./Reference/avrHorizTransReference.rds")
+  expect_equal_to_reference(GetFractalDim(avgHorizTrans), "./Reference/fractalDimTransmission.rds")
+  expect_equal_to_reference(GetFractalDim(im), "./Reference/fractalDimImage.rds")
+  expect_error(GetFractalDim("im"), "not defined for object of class", fixed = TRUE)
 
   expect_equal_to_reference(TransmissionChangepoint(avgHorizTrans), "./Reference/transmissionChangepoint.rds")
   expect_equal_to_reference(TransmissionSmoothness(avgHorizTrans), "./Reference/transmissionSmoothness.rds")

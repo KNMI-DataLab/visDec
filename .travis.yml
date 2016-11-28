@@ -1,13 +1,5 @@
 # Sample .travis.yml for R projects
 
-# whitelist
-branches:
-  only:
-    - master
-    - develop
-    - haziness
-    - sunnyday
-
 language: r
 sudo: required
 cache: packages
@@ -15,12 +7,12 @@ warnings_are_errors: true
 
 apt_packages:
  - libfftw3-dev
+ - libx11-dev
+
 r_binary_packages:
  - png
  - jpeg
  - plyr
-r_github_packages:
-  - MartinRoth/imager
 
 r_packages:
   - covr
