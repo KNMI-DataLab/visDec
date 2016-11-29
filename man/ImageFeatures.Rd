@@ -4,7 +4,12 @@
 \alias{ImageFeatures}
 \title{Return image features}
 \usage{
-ImageFeatures(filename, ...)
+ImageFeatures(filePath, ...)
+}
+\arguments{
+\item{filePath}{string}
+
+\item{...}{additional arguments for cropping using imsub}
 }
 \description{
 Return image features
