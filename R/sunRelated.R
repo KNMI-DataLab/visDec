@@ -63,6 +63,7 @@ WindowFilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise,
                                       offsetAfterSunrise, offsetBeforeSunset,
                                       offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- toAnalyze <- NULL
+  filePrefix <- dateOnly <- NULL
   uniqueDaysStation <- UniqueDaysPerStation(fileInfo)
   setkey(properties, filePrefix)
   setkey(uniqueDaysStation, filePrefix)
