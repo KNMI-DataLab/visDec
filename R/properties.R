@@ -9,7 +9,7 @@
 #'   \item{lon}{Longitude}
 #'   \item{lat}{Latitude}
 #'   \item{filePattern}{Pattern of the location name and date time the file name}
-#'   \item{imagePrefix}{Name of sensor}
+#'   \item{filePrefix}{Name of sensor}
 #' }
 #' @note This should be improved
 "properties"

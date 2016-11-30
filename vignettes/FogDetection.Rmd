@@ -42,8 +42,8 @@ imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
 ```
 
 ```{r, FilterImages}
-#daylightImages <- FilterDayLightHours(imageSummary, properties, 0, 0)
-daylightImages <- imageSummary 
+# daylightImages <- FilterDayLightHours(imageSummary, properties, 0, 0)
+daylightImages <- imageSummary
 ```
 
 ```{r, FeatureCalculation}

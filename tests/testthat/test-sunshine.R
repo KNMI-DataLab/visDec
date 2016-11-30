@@ -11,15 +11,15 @@ files <- c("./Input/Meetterrein_20151009_0000.jpg", # midnight
            "./Input/Meetterrein_20151009_0610.jpg", # pre sunrise
            "./Input/Meetterrein_20151009_1200.jpg") # midday
 
+# files <- c("./tests/testthat/Input/Meetterrein_20151009_0000.jpg", # midnight
+#            "./tests/testthat/Input/Meetterrein_20151009_0610.jpg", # pre sunrise
+#            "./tests/testthat/Input/Meetterrein_20151009_1200.jpg") # midday
 
 test_that("check day", {
 
   fileInfo <- data.table::rbindlist(lapply(files, FileNameParser,
                                            pattern="na*me_yyyymmdd_hhmm.jpg"))
 
-  #uniqueDaysStation <- UniqueDaysPerStation(imageSummary)
-  #mergedStationDays <- MergeDaysWithStationConfig(uniqueDaysStation, properties)
-  #print(FilterDayLightHours(mergedStationDays, imageSummary))
   tmp <- FilterDayLightHours(fileInfo, properties, 0, 0)
   expect_equal(tmp$dateTime[1], as.POSIXct("2015-10-09 06:10:00", tz = "UTC"))
   expect_equal(tmp$dateTime[2], as.POSIXct("2015-10-09 12:00:00", tz = "UTC"))
@@ -36,6 +36,8 @@ test_that("check time window", {
   expect_equal(tmp2$dateTime[1], as.POSIXct("2015-10-09 06:10:00", tz = "UTC"))
   expect_equal_to_reference(tmp2, file = "./Reference/SunriseSunsetHoursFilter.rds")
 
+  setkey(fileInfo, filePrefix, dateOnly) # This is to keep the old reference but
+  # has no real effect
   selected <- TimeWindowFilter(fileInfo, "00:00", "07:00")
   expect_equal(selected$dateTime[1], as.POSIXct("2015-10-09 00:00:00", tz = "UTC"))
   expect_equal(selected$dateTime[2], as.POSIXct("2015-10-09 06:10:00", tz = "UTC"))

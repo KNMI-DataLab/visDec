@@ -7,7 +7,7 @@
 UniqueDaysPerStation(fileInfo)
 }
 \arguments{
-\item{fileInfo}{Data Table with image infromation}
+\item{fileInfo}{Data Table with image information}
 }
 \description{
 Finds if an observation falls into the day time or not

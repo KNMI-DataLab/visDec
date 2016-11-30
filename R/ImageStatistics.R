@@ -28,7 +28,7 @@ FileNameParser <- function(fullFilename, pattern) {
 }
 
 #' Finds if an observation falls into the day time or not
-#' @param fileInfo Data Table with image infromation
+#' @param fileInfo Data Table with image information
 UniqueDaysPerStation <- function(fileInfo) {
   dateOnly <- dateTime <- filePrefix <- NULL
   fileInfo[, dateOnly := as.Date(dateTime, tz = 'UTC')]
