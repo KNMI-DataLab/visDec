@@ -42,17 +42,20 @@ imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
 ```
 
 ```{r, FilterImages}
-daylightImages <- FilterDayLightHours(imageSummary, properties, 0, 0)
+#daylightImages <- FilterDayLightHours(imageSummary, properties, 0, 0)
+daylightImages <- imageSummary 
 ```
 
 ```{r, FeatureCalculation}
 invisible(daylightImages[, id := 1:.N])
 setkey(daylightImages, id)
 
-imageFeatures <- foreach(id = iter(daylightImages[, id]), .combine = rbind) %do% {
+imageFeatures <- foreach(id = iter(daylightImages[, id]), .combine = rbind) %dopar% {
   daylightImages[id, ImageFeatures(filePath, y > 16)]
 }
+```
 
+```{r, JoinFeatures}
 setkey(daylightImages, filePath)
 setkey(imageFeatures, filePath)
 
