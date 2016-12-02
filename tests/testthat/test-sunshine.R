@@ -6,6 +6,7 @@ context("sunshine")
 #library(iterators)
 library(visDec)
 
+properties <- fread(system.file("extdata/properties.csv", package="visDec"))
 
 files <- c("./Input/Meetterrein_20151009_0000.jpg", # midnight
            "./Input/Meetterrein_20151009_0610.jpg", # pre sunrise
@@ -19,6 +20,12 @@ test_that("check day", {
 
   fileInfo <- data.table::rbindlist(lapply(files, FileNameParser,
                                            pattern="na*me_yyyymmdd_hhmm.jpg"))
+
+  fileInfo2 <- merge(fileInfo, properties,
+                     by.x = "filePrefix", by.y = "filePrefix")
+
+  expect_equal_to_reference(fileInfo2[IsDayLightImage(dateTime, lon, lat), ],
+                            file = "./Reference/DayLightImages.rds")
 
   tmp <- FilterDayLightHours(fileInfo, properties, 0, 0)
   expect_equal(tmp$dateTime[1], as.POSIXct("2015-10-09 06:10:00", tz = "UTC"))

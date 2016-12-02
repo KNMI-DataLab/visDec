@@ -42,8 +42,15 @@ imageSummary <- foreach(file = iter(filenames), .combine = rbind) %dopar% {
 ```
 
 ```{r, FilterImages}
-# daylightImages <- FilterDayLightHours(imageSummary, properties, 0, 0)
-daylightImages <- imageSummary
+properties <- fread(system.file("extdata/properties.csv", package="visDec"))
+
+setkey(imageSummary, filePrefix, dateTime)
+
+imageSummary <- merge(imageSummary, properties,
+                      by.x = "filePrefix", by.y = "filePrefix")
+
+daylightImages <- imageSummary[IsDayLightImage(dateTime, lon, lat), ]
+
 ```
 
 ```{r, FeatureCalculation}
@@ -81,7 +88,7 @@ par(old_par)
 ```
 
 ### Load sensor values
-```{r, SensorFiles, fig.show='hold'}
+```{r, SensorFiles, echo=FALSE, fig.show='hold'}
 path <- system.file("extdata/Sensor", package="visDec")
 sensorFiles <- list.files(path,
                           pattern=glob2rx("DeBilt*.csv"),
@@ -94,7 +101,7 @@ invisible(imageSummary[, MOR := TOA.MOR_10]) # see .e.g https://github.com/rstud
 ```
 
 ### Time series
-```{r, TimeSeries, fig.show='hold'}
+```{r, TimeSeries, echo=FALSE, fig.show='hold'}
 ggplot(imageSummary, aes(x = dateTime, y = meanEdge)) + geom_line() + xlab("")
 ggplot(imageSummary, aes(x = dateTime, y= MOR)) + geom_line() +
   xlab("") 
@@ -110,7 +117,7 @@ ggplot(imageSummary[hour(dateTime) %in% seq(5, 10, by=1), ],
 ```
 
 ### Scatter plots
-```{r, ScatterPlots, fig.show='hold'}
+```{r, ScatterPlots, echo=FALSE, fig.show='hold'}
 invisible(imageSummary[, visibility := factor(2000)])
 invisible(imageSummary[MOR < 1000, visibility := factor(1000)])
 invisible(imageSummary[MOR < 500, visibility := factor(500)])

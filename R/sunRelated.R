@@ -1,3 +1,15 @@
+#' Wich images are between sunrise and sunset?
+#' @param dateTime date and time
+#' @param lat Latitude
+#' @param lon Longitude
+#' @export
+IsDayLightImage <- function(dateTime, lon, lat) {
+  location <- cbind(lon, lat)
+  sunrise <- sunriset(location, dateTime, direction = "sunrise", POSIXct.out = TRUE)
+  sunset  <- sunriset(location, dateTime, direction = "sunset",  POSIXct.out = TRUE)
+  sunrise$time <= dateTime & dateTime <= sunset$time
+}
+
 #' Filter the lighthours given the information of the station (longitude,
 #'latitude) and day
 #' @param fileInfo data table with image files information
