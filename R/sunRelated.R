@@ -1,3 +1,15 @@
+#' Wich images are between sunrise and sunset?
+#' @param dateTime date and time
+#' @param lat Latitude
+#' @param lon Longitude
+#' @export
+IsDayLightImage <- function(dateTime, lon, lat) {
+  location <- cbind(lon, lat)
+  sunrise <- sunriset(location, dateTime, direction = "sunrise", POSIXct.out = TRUE)
+  sunset  <- sunriset(location, dateTime, direction = "sunset",  POSIXct.out = TRUE)
+  sunrise$time <= dateTime & dateTime <= sunset$time
+}
+
 #' Filter the lighthours given the information of the station (longitude,
 #'latitude) and day
 #' @param fileInfo data table with image files information
@@ -7,19 +19,20 @@
 #' @export
 FilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- NULL
-  imagePrefix <- filePrefix <- dateOnly <- NULL
+  filePrefix <- dateOnly <- NULL
   uniqueDaysStation <- UniqueDaysPerStation(fileInfo)
-  properties <- as.data.table(properties)
-  setkey(properties, imagePrefix)
+  setkey(properties, filePrefix)
   setkey(uniqueDaysStation, filePrefix)
-  mergedData        <- merge(properties, uniqueDaysStation, by.x = "imagePrefix", by.y = "filePrefix")
+  mergedData        <- merge(properties, uniqueDaysStation)
   dataWithSunTimes  <- GetSunTimes(mergedData)
-  setkey(dataWithSunTimes, dateOnly)
-  setkey(fileInfo, dateOnly)
-  combined          <- merge(fileInfo, dataWithSunTimes, by = "dateOnly", allow.cartesian=TRUE)
-  combined[, isDay := dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60]
-  combined <- combined[isDay == TRUE]
-  combined[, isDay := NULL]
+  setkey(dataWithSunTimes, dateOnly, filePrefix)
+  setkey(fileInfo, dateOnly, filePrefix)
+  combined          <- merge(fileInfo, dataWithSunTimes)
+  isDay <- combined[, dateTime > sunriseDateTime - offsetBeforeSunrise * 60 &
+                      dateTime < sunsetDateTime + offsetAfterSunset * 60]
+  combined[, c("sunriseDateTime", "sunsetDateTime", "day_frac.x",
+               "day_frac.y") := NULL]
+  combined[isDay,]
 }
 
 #' Find the sunrise and sunset times given a date and lon lat location
@@ -58,13 +71,19 @@ GetSunTimes <- function(data) {
 #' @param offsetAfterSunrise offset to include time after sunrise in minutes
 #' @param offsetBeforeSunset offset to include time before sunset in minutes
 #' @param offsetAfterSunset offset to include time after sunset in minutes
-WindowFilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offsetAfterSunrise, offsetBeforeSunset, offsetAfterSunset) {
+WindowFilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise,
+                                      offsetAfterSunrise, offsetBeforeSunset,
+                                      offsetAfterSunset) {
   isDay <- dateTime <- sunriseDateTime <- sunsetDateTime <- toAnalyze <- NULL
+  filePrefix <- dateOnly <- NULL
   uniqueDaysStation <- UniqueDaysPerStation(fileInfo)
-  mergedData        <- merge(properties, uniqueDaysStation,
-                             by.x = "imagePrefix", by.y = "filePrefix")
+  setkey(properties, filePrefix)
+  setkey(uniqueDaysStation, filePrefix)
+  mergedData        <- merge(properties, uniqueDaysStation)
   dataWithSunTimes  <- GetSunTimes(mergedData)
-  combined          <- merge(fileInfo, dataWithSunTimes, by = "dateOnly")
+  setkey(dataWithSunTimes, dateOnly, filePrefix)
+  setkey(fileInfo, dateOnly, filePrefix)
+  combined          <- merge(fileInfo, dataWithSunTimes)
   combined[, toAnalyze := (dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunriseDateTime + offsetAfterSunrise * 60) | (dateTime > sunsetDateTime - offsetBeforeSunset * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60)]
   combined <- combined[toAnalyze == TRUE]
   combined[,toAnalyze := NULL]

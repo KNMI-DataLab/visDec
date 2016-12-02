@@ -4,6 +4,11 @@ context("Feature calculation")
 test_that("Same input same output", {
   im <- imager::load.image("./Input/10perSize.jpg")
 
+  featureSet <- ImageFeatures("./Input/10perSize.jpg")
+  expect_equal_to_reference(featureSet, "./Reference/fullFeatureSet.rds")
+  featureSet2 <- ImageFeatures("./Input/10perSize.jpg", x > 5)
+  expect_equal_to_reference(featureSet2, "./Reference/fullFeatureSet2.rds")
+
   #matObjLoad <- R.matlab::readMat("../../inst/extdata/MatlabFiles/test/10percPicture/10PercResultsV3.mat")
 
   expect_equal_to_reference(DetectMeanEdges(im, 3), "./Reference/meanEdges.rds")
