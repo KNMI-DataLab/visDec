@@ -4,3 +4,4 @@
 ^profiling\.R$
 ^README\.Rmd$
 ^README-.*\.png$
+^testStrangeBehavior\.R$
