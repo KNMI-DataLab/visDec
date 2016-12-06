@@ -20,9 +20,16 @@ GetHorizAvgTrans <- function(image, winSize = 15, omega = 0.95,
 #' @param transmission The horizontally averaged transmission
 #' @export
 TransmissionChangepoint <- function(transmission) {
-  transmission %>%
-    cpt.mean(penalty = "None") %>%
-    cpts()
+#   if (is.numeric(transmission) == TRUE) {
+#   transmission <- complete.cases(transmission)
+#   transmission %>%
+#     cpt.mean(penalty = "None") %>%
+#     cpts()
+#   }
+#   else 0
+  cpts(cpt.mean(transmission, penalty = "None", class = TRUE))
+
+
 }
 
 #' Smoothness of transmission
