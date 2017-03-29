@@ -16,4 +16,3 @@ Fractal dimension of numeric vector or cimg
 Images (e.g objects of class cimg) are first transformed to grayscale
  and then considered as a matrix
 }
-

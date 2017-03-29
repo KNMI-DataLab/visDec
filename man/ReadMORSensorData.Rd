@@ -15,4 +15,3 @@ data.table
 \description{
 Read MOR data files
 }
-

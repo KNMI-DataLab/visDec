@@ -25,4 +25,3 @@ WindowFilterDayLightHours(fileInfo, properties, offsetBeforeSunrise,
 Filter the lighthours given the information of the station (longitude,
 latitude) and day
 }
-

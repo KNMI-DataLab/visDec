@@ -12,4 +12,3 @@ GetSunTimes(data)
 \description{
 Find the sunrise and sunset times given a date and lon lat location
 }
-

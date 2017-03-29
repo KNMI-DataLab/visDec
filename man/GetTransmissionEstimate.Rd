@@ -18,4 +18,3 @@ GetTransmissionEstimate(image, atmosphere, omega = 0.95, winSize = 15)
 \description{
 Obtains transmission
 }
-

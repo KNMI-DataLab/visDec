@@ -14,4 +14,3 @@ DetectEdges(im, sigma = 1)
 \description{
 Detect edges
 }
-

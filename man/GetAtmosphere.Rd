@@ -14,4 +14,3 @@ GetAtmosphere(image, darkChannel)
 \description{
 Obtains atmosphere
 }
-
