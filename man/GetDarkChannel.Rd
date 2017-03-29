@@ -14,4 +14,3 @@ GetDarkChannel(image, winSize = 15)
 \description{
 Obtains the dark channel
 }
-

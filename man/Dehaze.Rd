@@ -18,4 +18,3 @@ Dehaze(image, omega = 0.95, winSize = 15, lambda = 1e-04)
 \description{
 Obtain the dehazed image
 }
-

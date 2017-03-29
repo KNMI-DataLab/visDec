@@ -16,4 +16,3 @@ TimeWindowFilter(fileInfo, initialTime, finalTime)
 \description{
 Filter the images based on the time window of interest
 }
-

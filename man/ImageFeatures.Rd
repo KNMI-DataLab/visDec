@@ -14,4 +14,3 @@ ImageFeatures(filePath, ...)
 \description{
 Return image features
 }
-

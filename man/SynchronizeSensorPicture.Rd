@@ -17,4 +17,3 @@ data.table
 \description{
 Synchronize the sensor reading to picture acquisition time
 }
-

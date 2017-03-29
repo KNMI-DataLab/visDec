@@ -16,4 +16,3 @@ IsDayLightImage(dateTime, lon, lat)
 \description{
 Wich images are between sunrise and sunset?
 }
-

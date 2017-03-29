@@ -16,4 +16,3 @@ GetRadiance(image, transmission, atmosphere)
 \description{
 Obtains transmission
 }
-
