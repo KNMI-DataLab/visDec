@@ -37,7 +37,6 @@ FilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offse
 
 #' Find the sunrise and sunset times given a date and lon lat location
 #' @param data Data Table with image infromation
-#' @importFrom maptools sunriset
 GetSunTimes <- function(data) {
   time <- NULL
   #the values in the list at positions are: [5]: lon [6]:lat [8]:date
