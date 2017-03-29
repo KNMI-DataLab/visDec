@@ -14,4 +14,3 @@ DetectMeanEdges(im, sigma = 1)
 \description{
 Return mean number of edges
 }
-

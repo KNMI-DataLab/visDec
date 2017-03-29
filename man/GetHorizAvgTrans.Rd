@@ -21,4 +21,3 @@ vertical transmission profile
 \description{
 Obtains the dark horizontal average transmission
 }
-

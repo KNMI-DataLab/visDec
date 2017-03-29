@@ -12,4 +12,3 @@ TransmissionSmoothness(transmission)
 \description{
 Smoothness of transmission
 }
-

@@ -7,5 +7,6 @@
 #' @importFrom stats sd
 #' @importFrom utils read.csv packageVersion
 #' @importFrom fractaldim fd.estimate
+#' @importFrom maptools sunriset
 NULL
 

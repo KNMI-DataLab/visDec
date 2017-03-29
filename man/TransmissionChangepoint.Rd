@@ -12,4 +12,3 @@ TransmissionChangepoint(transmission)
 \description{
 Obtains change point of transmission
 }
-

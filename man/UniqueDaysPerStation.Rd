@@ -12,4 +12,3 @@ UniqueDaysPerStation(fileInfo)
 \description{
 Finds if an observation falls into the day time or not
 }
-
