@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+Test this on windows!
+
 ## Example how to use visDec
 ### Load required libaries
 ```{r, include=FALSE, message=FALSE}
