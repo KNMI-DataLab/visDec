@@ -231,20 +231,6 @@ GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
 #   x
 # }
 
-#' Obtain the dehazed image
-#' @inheritParams GetRadiance
-#' @param lambda Regularization parameter for soft matting
-#' @export
-#' @note This is the same as GetRadiance can be removed
-#'
-Dehaze <- function(image, omega = 0.95, winSize = 15, lambda = 0.0001) {
-  darkChannel  <- GetDarkChannel(image, winSize)
-  atmosphere   <- GetAtmosphere(image, darkChannel)
-  transmission <- GetTransmission(image, atmosphere, omega, winSize)
-  #transmission <- RefineTransmissionEstimate(image, transmission, lambda)
-  radiance     <- GetRadiance(image, transmission, atmosphere)
-  radiance
-}
 
 
 

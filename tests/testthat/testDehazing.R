@@ -43,9 +43,9 @@ test_that("Same input same output", {
   #expect_equal(laplacian, matrixMatLoadLaplacian)
 
   lambda <- 0.0001
-  dehaze <- Dehaze(im, omega, winSize,lambda)
+  dehaze <- GetRadiance(im, omega = omega, winSize = winSize)
   expect_equal_to_reference(as.array(dehaze), "./Reference/dehazeReference.rds")
-  dehaze2 <- Dehaze(im)
+  dehaze2 <- GetRadiance(im, transmissionEst, atmosphere)
   expect_equal(dehaze, dehaze2)
   # Still with refined transmission
   #expect_equal_to_reference(dehaze, "dahazeReference.rds")
