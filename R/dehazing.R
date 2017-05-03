@@ -50,13 +50,14 @@ GetDarkChannel <- function(image, winSize=15) {
 
 #' Obtains atmosphere
 #' @param image The image object
-#' @param darkChannel Image dark channel
+#' @param darkChannel Image dark channel (defaults to default dark channel)
 #' @importFrom imager pad width height
 #' @export
 #'
-GetAtmosphere <- function(image, darkChannel) {
+GetAtmosphere <- function(image, darkChannel = NULL, winSize = 15) {
   n <- width(image)
   m <- height(image)
+  if (is.null(darkChannel)) darkChannel <- GetDarkChannel(image, winSize)
   nPixel <- m * n
   nSearchPixels <- floor(nPixel * 0.01)
   darkVec       <- matrix(darkChannel, nPixel, 1)
@@ -80,10 +81,11 @@ GetAtmosphere <- function(image, darkChannel) {
 #' @importFrom abind abind
 #' @export
 #'
-GetTransmissionEstimate <- function(image, atmosphere, omega = 0.95,
+GetTransmissionEstimate <- function(image, atmosphere = NULL, omega = 0.95,
                                     winSize = 15) {
   n <- width(image)
   m <- height(image)
+  if(is.null(atmosphere)) atmosphere <- GetAtmosphere(image, winSize = winSize)
   channelsNum <- spectrum(image)
   toFill <- array(atmosphere, dim = c(1, 1, 3))
   repAtmosphere <- NULL
@@ -108,14 +110,20 @@ GetTransmissionEstimate <- function(image, atmosphere, omega = 0.95,
 
 
 #porting code of the get_radiance.m
-#' Obtains transmission
+#' Obtains radiance
 #' @param image The image object
 #' @param transmission The image transmission
 #' @param atmosphere The image atmosphere
 #' @importFrom imager width height spectrum
 #' @export
 #'
-GetRadiance<-function(image, transmission, atmosphere) {
+GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
+                      omega = 0.95, winSize = 15) {
+  if (is.null(atmosphere)) atmosphere <- GetAtmosphere(image, winSize = winSize)
+  if (is.null(transmission)) {
+    transmission <- GetTransmissionEstimate(image, atmosphere, omega = omega,
+                                            winSize = winSize)
+  }
   n <- width(image)
   m <- height(image)
   channels <- spectrum(image)

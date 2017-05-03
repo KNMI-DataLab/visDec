@@ -30,6 +30,9 @@ test_that("Same input same output", {
   radiance <- GetRadiance(im, transmissionEst, atmosphere)
   expect_equal_to_reference(radiance, "./Reference/radianceReference.rds")
 
+  radiance2 <- GetRadiance(im, omega = omega, winSize = winSize)
+  expect_equal_to_reference(radiance2, "./Reference/radianceReference.rds")
+
 
   #n <- imager::width(im)
   #m <- imager::height(im)

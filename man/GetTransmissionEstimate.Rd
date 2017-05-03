@@ -4,7 +4,8 @@
 \alias{GetTransmissionEstimate}
 \title{Obtains transmission}
 \usage{
-GetTransmissionEstimate(image, atmosphere, omega = 0.95, winSize = 15)
+GetTransmissionEstimate(image, atmosphere = NULL, omega = 0.95,
+  winSize = 15)
 }
 \arguments{
 \item{image}{Image}

@@ -2,9 +2,10 @@
 % Please edit documentation in R/dehazing.R
 \name{GetRadiance}
 \alias{GetRadiance}
-\title{Obtains transmission}
+\title{Obtains radiance}
 \usage{
-GetRadiance(image, transmission, atmosphere)
+GetRadiance(image, transmission = NULL, atmosphere = NULL, omega = 0.95,
+  winSize = 15)
 }
 \arguments{
 \item{image}{The image object}
@@ -14,5 +15,5 @@ GetRadiance(image, transmission, atmosphere)
 \item{atmosphere}{The image atmosphere}
 }
 \description{
-Obtains transmission
+Obtains radiance
 }

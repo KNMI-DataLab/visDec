@@ -4,12 +4,12 @@
 \alias{GetAtmosphere}
 \title{Obtains atmosphere}
 \usage{
-GetAtmosphere(image, darkChannel)
+GetAtmosphere(image, darkChannel = NULL, winSize = 15)
 }
 \arguments{
 \item{image}{The image object}
 
-\item{darkChannel}{Image dark channel}
+\item{darkChannel}{Image dark channel (defaults to default dark channel)}
 }
 \description{
 Obtains atmosphere
