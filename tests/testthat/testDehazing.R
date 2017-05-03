@@ -16,22 +16,22 @@ test_that("Same input same output", {
   winSize <- 15
 
   darkChannel <- GetDarkChannel(im, winSize)
-  expect_equal_to_reference(darkChannel, "./Reference/darkChannelReference.rds")
+  expect_equal_to_reference(as.matrix(darkChannel), "./Reference/darkChannelReference.rds")
 
   atmosphere <- GetAtmosphere(im, darkChannel)
   expect_equal_to_reference(atmosphere, "./Reference/atmosphereReference.rds")
 
 
   omega <- 0.95
-  transmissionEst <- GetTransmissionEstimate(im, atmosphere, omega, winSize)
-  expect_equal_to_reference(transmissionEst, "./Reference/transmissionEstReference.rds")
+  transmissionEst <- GetTransmission(im, atmosphere, omega, winSize)
+  expect_equal_to_reference(as.matrix(transmissionEst), "./Reference/transmissionEstReference.rds")
 
 
   radiance <- GetRadiance(im, transmissionEst, atmosphere)
-  expect_equal_to_reference(radiance, "./Reference/radianceReference.rds")
+  expect_equal_to_reference(as.array(radiance), "./Reference/radianceReference.rds")
 
   radiance2 <- GetRadiance(im, omega = omega, winSize = winSize)
-  expect_equal_to_reference(radiance2, "./Reference/radianceReference.rds")
+  expect_equal_to_reference(as.array(radiance2), "./Reference/radianceReference.rds")
 
 
   #n <- imager::width(im)
@@ -44,7 +44,7 @@ test_that("Same input same output", {
 
   lambda <- 0.0001
   dehaze <- Dehaze(im, omega, winSize,lambda)
-  expect_equal_to_reference(dehaze, "./Reference/dehazeReference.rds")
+  expect_equal_to_reference(as.array(dehaze), "./Reference/dehazeReference.rds")
   dehaze2 <- Dehaze(im)
   expect_equal(dehaze, dehaze2)
   # Still with refined transmission

@@ -10,10 +10,10 @@ GetHorizAvgTrans <- function(image, winSize = 15, omega = 0.95,
                              lambda = 0.001) {
   darkChannel  <- GetDarkChannel(image, winSize)
   atmosphere   <- GetAtmosphere(image, darkChannel)
-  transmission <- GetTransmissionEstimate(image, atmosphere, omega, winSize)
+  transmission <- GetTransmission(image, atmosphere, omega, winSize)
   # the following transpose is done given the representation of
   # imager that invert height and width in the matrix representation
-  rowMeans(t(transmission))
+  rowMeans(t(as.matrix(transmission)))
 }
 
 #' Obtains change point of transmission

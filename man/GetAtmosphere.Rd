@@ -2,7 +2,7 @@
 % Please edit documentation in R/dehazing.R
 \name{GetAtmosphere}
 \alias{GetAtmosphere}
-\title{Obtains atmosphere}
+\title{Obtains atmosphere light}
 \usage{
 GetAtmosphere(image, darkChannel = NULL, winSize = 15)
 }
@@ -10,7 +10,9 @@ GetAtmosphere(image, darkChannel = NULL, winSize = 15)
 \item{image}{The image object}
 
 \item{darkChannel}{Image dark channel (defaults to default dark channel)}
+
+\item{winSize}{Should probably be renamed to patch}
 }
 \description{
-Obtains atmosphere
+Obtains atmosphere light
 }

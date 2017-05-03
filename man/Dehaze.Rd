@@ -7,7 +7,7 @@
 Dehaze(image, omega = 0.95, winSize = 15, lambda = 1e-04)
 }
 \arguments{
-\item{image}{Image}
+\item{image}{The image object}
 
 \item{omega}{Constant for aerial perspective}
 
@@ -17,4 +17,7 @@ Dehaze(image, omega = 0.95, winSize = 15, lambda = 1e-04)
 }
 \description{
 Obtain the dehazed image
+}
+\note{
+This is the same as GetRadiance can be removed
 }

@@ -13,6 +13,10 @@ GetRadiance(image, transmission = NULL, atmosphere = NULL, omega = 0.95,
 \item{transmission}{The image transmission}
 
 \item{atmosphere}{The image atmosphere}
+
+\item{omega}{Constant for aerial perspective}
+
+\item{winSize}{Should probably be renamed to patch}
 }
 \description{
 Obtains radiance

@@ -1,5 +1,3 @@
-#porting code of the get_dark_channel.m
-
 GetPaddedImage <- function(image, padSize) {
   channels    <- channels(image, drop = FALSE)
   listArray   <- lapply(channels, as.array)
@@ -22,8 +20,7 @@ GetPaddedImage <- function(image, padSize) {
 }
 
 #' Obtains the dark channel
-#' @param image The image object
-#' @param winSize Should probably be renamed
+#' @inheritParams GetRadiance
 #' @export
 #' @importFrom imager pad patchstat width height channels as.cimg
 #' @importFrom matlab padarray
@@ -41,15 +38,11 @@ GetDarkChannel <- function(image, winSize=15) {
   darkChannel      <- patchstat(padIm, 'min', grid[, 1] + offset,
                                           grid[, 2] + offset, winsize, winsize)
   dim(darkChannel) <- c(m, n)
-  darkChannel
+  as.cimg(darkChannel)
 }
 
-
-
-#porting code of the get_atmosphere.m
-
-#' Obtains atmosphere
-#' @param image The image object
+#' Obtains atmosphere light
+#' @inheritParams GetRadiance
 #' @param darkChannel Image dark channel (defaults to default dark channel)
 #' @importFrom imager pad width height
 #' @export
@@ -60,7 +53,7 @@ GetAtmosphere <- function(image, darkChannel = NULL, winSize = 15) {
   if (is.null(darkChannel)) darkChannel <- GetDarkChannel(image, winSize)
   nPixel <- m * n
   nSearchPixels <- floor(nPixel * 0.01)
-  darkVec       <- matrix(darkChannel, nPixel, 1)
+  darkVec       <- matrix(as.matrix(darkChannel), nPixel, 1)
   imageVec      <- matrix(image, nPixel, 3)
   sortedDark    <- sort(darkVec, decreasing = TRUE, index.return=TRUE)
   accumulator   <- matrix(0,1,3)
@@ -71,18 +64,14 @@ GetAtmosphere <- function(image, darkChannel = NULL, winSize = 15) {
   atmosphere
 }
 
-
-#porting code of the get_transmission_estimate.m
-
 #' Obtains transmission
-#' @inheritParams Dehaze
-#' @param atmosphere The image atmosphere
+#' @inheritParams GetRadiance
 #' @importFrom imager width height spectrum
 #' @importFrom abind abind
 #' @export
 #'
-GetTransmissionEstimate <- function(image, atmosphere = NULL, omega = 0.95,
-                                    winSize = 15) {
+GetTransmission<- function(image, atmosphere = NULL, omega = 0.95,
+                           winSize = 15) {
   n <- width(image)
   m <- height(image)
   if(is.null(atmosphere)) atmosphere <- GetAtmosphere(image, winSize = winSize)
@@ -105,15 +94,17 @@ GetTransmissionEstimate <- function(image, atmosphere = NULL, omega = 0.95,
   toBeImage <- aperm(arrayFormat, c(1, 2, 4, 3))
   toBeImage <- as.cimg(toBeImage)
   transEst <- 1 - omega * GetDarkChannel(toBeImage, winSize)
-  transEst
+  as.cimg(transEst)
 }
 
 
-#porting code of the get_radiance.m
 #' Obtains radiance
 #' @param image The image object
 #' @param transmission The image transmission
 #' @param atmosphere The image atmosphere
+#' @param omega Constant for aerial perspective
+#### @param lambda Regularization parameter for soft matting
+#' @param winSize Should probably be renamed to patch
 #' @importFrom imager width height spectrum
 #' @export
 #'
@@ -121,7 +112,7 @@ GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
                       omega = 0.95, winSize = 15) {
   if (is.null(atmosphere)) atmosphere <- GetAtmosphere(image, winSize = winSize)
   if (is.null(transmission)) {
-    transmission <- GetTransmissionEstimate(image, atmosphere, omega = omega,
+    transmission <- GetTransmission(image, atmosphere, omega = omega,
                                             winSize = winSize)
   }
   n <- width(image)
@@ -148,7 +139,7 @@ GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
   radiance <- ((as.array(image) - repAtmosphere) / maxTransmission) +
     repAtmosphere
   radiance <- unname(radiance)
-  radiance
+  as.cimg(radiance)
 }
 
 
@@ -240,18 +231,16 @@ GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
 #   x
 # }
 
-#porting code of the dehaze.m
 #' Obtain the dehazed image
-#' @param image Image
-#' @param omega Constant for aerial perspective
+#' @inheritParams GetRadiance
 #' @param lambda Regularization parameter for soft matting
-#' @param winSize Should probably be renamed to patch
 #' @export
+#' @note This is the same as GetRadiance can be removed
 #'
 Dehaze <- function(image, omega = 0.95, winSize = 15, lambda = 0.0001) {
   darkChannel  <- GetDarkChannel(image, winSize)
   atmosphere   <- GetAtmosphere(image, darkChannel)
-  transmission <- GetTransmissionEstimate(image, atmosphere, omega, winSize)
+  transmission <- GetTransmission(image, atmosphere, omega, winSize)
   #transmission <- RefineTransmissionEstimate(image, transmission, lambda)
   radiance     <- GetRadiance(image, transmission, atmosphere)
   radiance
