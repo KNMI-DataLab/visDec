@@ -3,7 +3,7 @@
 Visibility / Fog Detection
 ==========================
 
-[![Travis-CI Build Status](https://travis-ci.org/MartinRoth/visDec.svg?branch=master)](https://travis-ci.org/MartinRoth/visDec) [![Coverage Status](https://img.shields.io/codecov/c/github/MartinRoth/visDec/master.svg)](https://codecov.io/github/MartinRoth/visDec?branch=master) [![Gitter](https://badges.gitter.im/MartinRoth/visDec.svg)](https://gitter.im/MartinRoth/visDec?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Travis-CI Build Status](https://travis-ci.org/MartinRoth/visDec.svg?branch=master)](https://travis-ci.org/MartinRoth/visDec) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/MartinRoth/visDec?branch=master&svg=true)](https://ci.appveyor.com/project/MartinRoth/visDec) [![Coverage Status](https://img.shields.io/codecov/c/github/MartinRoth/visDec/master.svg)](https://codecov.io/github/MartinRoth/visDec?branch=master) [![Gitter](https://badges.gitter.im/MartinRoth/visDec.svg)](https://gitter.im/MartinRoth/visDec?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 Extract features from images for the purpose of fog detection / visibility estimation. The package can be installed via
 
