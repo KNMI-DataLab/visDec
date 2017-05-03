@@ -9,7 +9,7 @@ GetDarkChannel(image, winSize = 15)
 \arguments{
 \item{image}{The image object}
 
-\item{winSize}{Should probably be renamed}
+\item{winSize}{Should probably be renamed to patch}
 }
 \description{
 Obtains the dark channel
