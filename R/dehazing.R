@@ -70,7 +70,7 @@ GetAtmosphere <- function(image, darkChannel = NULL, winSize = 15) {
 #' @importFrom abind abind
 #' @export
 #'
-GetTransmission<- function(image, atmosphere = NULL, omega = 0.95,
+GetTransmission <- function(image, atmosphere = NULL, omega = 0.95,
                            winSize = 15) {
   n <- width(image)
   m <- height(image)

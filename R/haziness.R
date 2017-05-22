@@ -8,12 +8,17 @@
 # #' @importFrom imager pad extract_patches width height channels as.cimg
 GetHorizAvgTrans <- function(image, winSize = 15, omega = 0.95,
                              lambda = 0.001) {
-  darkChannel  <- GetDarkChannel(image, winSize)
-  atmosphere   <- GetAtmosphere(image, darkChannel)
-  transmission <- GetTransmission(image, atmosphere, omega, winSize)
+  transmission <- GetTransmission(image, omega = omega, winSize = winSize)
   # the following transpose is done given the representation of
   # imager that invert height and width in the matrix representation
-  rowMeans(t(as.matrix(transmission)))
+  HorizontalAverageTransmission(transmission)
+}
+
+#' Obtains horizontal average from transmission
+#' @param x the transmission
+#' @export
+HorizontalAverageTransmission <- function(x) {
+  rowMeans(t(as.matrix(x)))
 }
 
 #' Obtains change point of transmission
