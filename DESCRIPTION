@@ -10,7 +10,7 @@ Depends:
 Imports:
     Rcpp,
     data.table (>= 1.9.8),
-    imager (> 0.20.1),
+    imager (>= 0.40.2),
     matlab,
     abind,
     Matrix,
@@ -23,7 +23,7 @@ Imports:
     fractaldim
 License: LGPL
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.0.1.9000
 LinkingTo: Rcpp
 Suggests: knitr,
     rmarkdown,
