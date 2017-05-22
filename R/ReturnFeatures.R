@@ -15,7 +15,7 @@ ImageFeatures <- function(filePath, ...) {
              change_point      = TransmissionChangepoint(tm_hoz_avg),
              smoothness        = TransmissionSmoothness(tm_hoz_avg),
              fractal_dim       = GetFractalDim(im),
-             mean_Hue          = mean(channel(imT, 1)),
+             mean_hue          = mean(channel(imT, 1)),
              mean_saturation   = mean(channel(imT, 2)),
              mean_brightness   = mean(channel(imT, 3)),
              mean_transmission = mean(tm)
