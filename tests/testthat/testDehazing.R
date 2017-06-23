@@ -2,6 +2,7 @@ context("Feature calculation")
 
 
 test_that("Same input same output", {
+  skip_on_appveyor()
   im <- imager::load.image("./Input/10perSize.jpg")
 
   featureSet <- ImageFeatures("./Input/10perSize.jpg")
