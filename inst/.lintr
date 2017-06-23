@@ -1,11 +1,1 @@
-linters: with_defaults(
-    camel_case_linter = NULL, # 400
-    commented_code_linter = NULL, # 88
-    infix_spaces_linter = NULL, # 31
-    line_length_linter = NULL, # 29
-    commas_linter = NULL, # 25
-    trailing_blank_lines_linter = NULL, # 13
-    object_usage_linter = NULL, # 5
-    spaces_left_parentheses_linter = NULL, # 5
-    NULL
-  )
+exclusions: list("inst/doc/FogDetection.R")
