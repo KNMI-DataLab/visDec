@@ -106,7 +106,3 @@ TimeWindowFilter <- function(fileInfo, initialTime, finalTime){
                                   minute(dateTime) <= as.numeric(finalHHMM[[2]])))]
   filtered
 }
-
-
-
-

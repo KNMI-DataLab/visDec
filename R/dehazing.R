@@ -229,8 +229,3 @@ GetRadiance <- function(image, transmission = NULL, atmosphere = NULL,
 #   dim(x)      <- c(m, n)
 #   x
 # }
-
-
-
-
-
