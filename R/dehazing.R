@@ -74,13 +74,12 @@ GetTransmission <- function(image, atmosphere = NULL, omega = 0.95,
                            winSize = 15) {
   n <- width(image)
   m <- height(image)
-  if(is.null(atmosphere)) atmosphere <- GetAtmosphere(image, winSize = winSize)
+  if (is.null(atmosphere)) atmosphere <- GetAtmosphere(image, winSize = winSize)
   channelsNum <- spectrum(image)
   toFill <- array(atmosphere, dim = c(1, 1, 3))
-  repAtmosphere <- NULL
   final<-list()
   splittedImage<-channels(image, drop = TRUE)
-  for(k in 1:channelsNum){
+  for (k in 1:channelsNum){
     #m and n are inverted given the internal array-like representation that
     # imager has #adding a fourth dimention to have a 4 dimentional matrix as
     # normal color images are (3 colors plus 1 frame)
@@ -121,7 +120,7 @@ GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
   toFill <- array(atmosphere, dim = c(1, 1, 3))
   repAtmosphere <- NULL
   maxTransmission <- NULL
-  for(k in 1:channels){
+  for (k in 1:channels){
     # adding a fourth dimention to have a 4 dimentional matrix as normal color
     # images are (3 colors plus 1 frame)
     temp <- array(toFill[k], dim = c(n, m, 1))
@@ -129,14 +128,14 @@ GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
   }
   repAtmosphere <- unname(repAtmosphere)
   maxValues <- pmax(transmission, 0.1)
-  for(k in 1:channels){
+  for (k in 1:channels){
     # adding a fourth dimention to have a 4 dimentional matrix as normal color
     # images are (3 colors plus 1 frame)
     temp <- array(maxValues, dim = c(n, m, 1))
     maxTransmission<-abind(maxTransmission, temp, along = 4)
   }
   maxTransmission<-unname(maxTransmission)
-  radiance <- ((as.array(image) - repAtmosphere) / maxTransmission) +
+  radiance <- (as.array(image) - repAtmosphere) / maxTransmission +
     repAtmosphere
   radiance <- unname(radiance)
   as.cimg(radiance)

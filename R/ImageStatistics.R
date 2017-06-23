@@ -7,7 +7,6 @@ FileNameParser <- function(fullFilename, pattern) {
   if (pattern != "na*me_yyyymmdd_hhmm.jpg") stop("pattern not implemented")
   tmp <- strsplit(fullFilename, "/")[[1]]
   tmp <- tmp[length(tmp)]
-  name <- tmp
   tmp <- strsplit(tmp, "_")[[1]]
   if (length(tmp) == 3){
     filePrefix <- tmp[1]

@@ -1,4 +1,4 @@
-exclusions: list("inst/doc/FogDetection.R")
+exclusions: list("inst/doc/FogDetection.R", "R/RcppExports.R")
 linters: with_defaults(
     camel_case_linter = NULL, # 365
     commented_code_linter = NULL, # 81
@@ -6,9 +6,6 @@ linters: with_defaults(
     commas_linter = NULL, # 25
     infix_spaces_linter = NULL, # 23
     trailing_blank_lines_linter = NULL, # 12
-    object_usage_linter = NULL, # 5
-    spaces_left_parentheses_linter = NULL, # 5
     multiple_dots_linter = NULL, # 2
-    single_quotes_linter = NULL, # 2
     NULL
   )
