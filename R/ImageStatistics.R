@@ -31,7 +31,7 @@ FileNameParser <- function(fullFilename, pattern) {
 #' @param fileInfo Data Table with image information
 UniqueDaysPerStation <- function(fileInfo) {
   dateOnly <- dateTime <- filePrefix <- NULL
-  fileInfo[, dateOnly := as.Date(dateTime, tz = 'UTC')]
+  fileInfo[, dateOnly := as.Date(dateTime, tz = "UTC")]
   setkeyv(fileInfo, c("filePrefix", "dateOnly"))
   stationDate <- fileInfo[, list(filePrefix, dateOnly)]
   subset(unique(stationDate))

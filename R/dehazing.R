@@ -35,7 +35,7 @@ GetDarkChannel <- function(image, winSize=15) {
   grid             <- expand.grid(width = 1:m, height = 1:n)
   winsize          <- rep(winSize - 1, nrow(grid))
   offset           <- padSize - 1
-  darkChannel      <- patchstat(padIm, 'min', grid[, 1] + offset,
+  darkChannel      <- patchstat(padIm, "min", grid[, 1] + offset,
                                           grid[, 2] + offset, winsize, winsize)
   dim(darkChannel) <- c(m, n)
   as.cimg(darkChannel)
