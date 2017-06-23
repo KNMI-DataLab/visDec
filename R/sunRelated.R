@@ -32,7 +32,7 @@ FilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise, offse
                       dateTime < sunsetDateTime + offsetAfterSunset * 60]
   combined[, c("sunriseDateTime", "sunsetDateTime", "day_frac.x",
                "day_frac.y") := NULL]
-  combined[isDay,]
+  combined[isDay, ]
 }
 
 #' Find the sunrise and sunset times given a date and lon lat location
@@ -41,8 +41,8 @@ GetSunTimes <- function(data) {
   time <- NULL
   #the values in the list at positions are: [5]: lon [6]:lat [8]:date
   fn <- function(x, direction) {
-    sunriset(crds = matrix(c(as.numeric(x[5]), as.numeric(x[6])),nrow = 1),
-             dateTime = as.POSIXct(x[8], tz="UTC"), direction = direction,
+    sunriset(crds = matrix(c(as.numeric(x[5]), as.numeric(x[6])), nrow = 1),
+             dateTime = as.POSIXct(x[8], tz = "UTC"), direction = direction,
              POSIXct.out = TRUE)
   }
   sunriseTime <- apply(data, 1, fn, "sunrise")
@@ -51,14 +51,14 @@ GetSunTimes <- function(data) {
   tempSunset  <- as.data.table(do.call(rbind.data.frame, sunsetTime ))
   tempSunrise[, date        := as.Date(time, tz = "UTC")]
   tempSunrise[, sunriseTime := strftime(time, format = "%T %Z", tz = "UTC")]
-  tempSunset[ , date        := as.Date(time, tz = "UTC")]
-  tempSunset[ , sunsetTime  := strftime(time, format = "%T %Z", tz = "UTC")]
+  tempSunset[, date        := as.Date(time, tz = "UTC")]
+  tempSunset[, sunsetTime  := strftime(time, format = "%T %Z", tz = "UTC")]
   setnames(tempSunrise, old = c("time"), new = c("sunriseDateTime"))
   setnames(tempSunset,  old = c("time"), new = c("sunsetDateTime"))
   setkey(tempSunrise, date)
   setkey(tempSunset, date)
   sunriseSunsetTimes <- merge(tempSunrise, tempSunset, by = "date")
-  merge(data, sunriseSunsetTimes, by.x ="dateOnly", by.y = "date")
+  merge(data, sunriseSunsetTimes, by.x = "dateOnly", by.y = "date")
 }
 
 
@@ -85,7 +85,7 @@ WindowFilterDayLightHours <- function(fileInfo, properties, offsetBeforeSunrise,
   combined          <- merge(fileInfo, dataWithSunTimes)
   combined[, toAnalyze := (dateTime > sunriseDateTime - offsetBeforeSunrise * 60 & dateTime < sunriseDateTime + offsetAfterSunrise * 60) | (dateTime > sunsetDateTime - offsetBeforeSunset * 60 & dateTime < sunsetDateTime + offsetAfterSunset * 60)]
   combined <- combined[toAnalyze == TRUE]
-  combined[,toAnalyze := NULL]
+  combined[, toAnalyze := NULL]
 }
 
 

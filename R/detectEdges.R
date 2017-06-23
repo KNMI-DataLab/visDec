@@ -2,9 +2,9 @@
 #' @param im Image
 #' @param sigma Sigma
 #' @export
-DetectEdges <- function(im,sigma=1) {
+DetectEdges <- function(im, sigma=1) {
   # adapted from http://dahtah.github.io/imager/foreground_background.html
-  isoblur(im, sigma) %>% imgradient("xy") %>% llply(function(v) v^2) %>%
+  isoblur(im, sigma) %>% imgradient("xy") %>% llply(function(v) v^2) %>% #nolint
     add %>% imsplit("c") %>% add %>% sqrt
 }
 

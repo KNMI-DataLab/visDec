@@ -5,7 +5,7 @@ GetPaddedImage <- function(image, padSize) {
   padded      <- lapply(listArray, padarray, padSize, padval = Inf,
                         direction = "both")
   padded      <- lapply(padded,
-                        function(v) padarray(t(v),padSize, padval = Inf,
+                        function(v) padarray(t(v), padSize, padval = Inf,
                                              direction = "both"))
   padded      <- lapply(padded, t)
   arrayFormat <- as.array(padded)
@@ -29,7 +29,7 @@ GetPaddedImage <- function(image, padSize) {
 GetDarkChannel <- function(image, winSize=15) {
   m <- width(image)
   n <- height(image)
-  padSize     <- floor(winSize/2)
+  padSize     <- floor(winSize / 2)
   # What does the padding add to the functionality?
   padIm            <- GetPaddedImage(image, padSize)
   grid             <- expand.grid(width = 1:m, height = 1:n)
@@ -55,8 +55,8 @@ GetAtmosphere <- function(image, darkChannel = NULL, winSize = 15) {
   nSearchPixels <- floor(nPixel * 0.01)
   darkVec       <- matrix(as.matrix(darkChannel), nPixel, 1)
   imageVec      <- matrix(image, nPixel, 3)
-  sortedDark    <- sort(darkVec, decreasing = TRUE, index.return=TRUE)
-  accumulator   <- matrix(0,1,3)
+  sortedDark    <- sort(darkVec, decreasing = TRUE, index.return = TRUE)
+  accumulator   <- matrix(0, 1, 3)
   for (k in 1:nSearchPixels){
     accumulator <- accumulator + imageVec[sortedDark$ix[k], 1:3]
   }
@@ -77,8 +77,8 @@ GetTransmission <- function(image, atmosphere = NULL, omega = 0.95,
   if (is.null(atmosphere)) atmosphere <- GetAtmosphere(image, winSize = winSize)
   channelsNum <- spectrum(image)
   toFill <- array(atmosphere, dim = c(1, 1, 3))
-  final<-list()
-  splittedImage<-channels(image, drop = TRUE)
+  final <- list()
+  splittedImage <- channels(image, drop = TRUE)
   for (k in 1:channelsNum){
     #m and n are inverted given the internal array-like representation that
     # imager has #adding a fourth dimention to have a 4 dimentional matrix as
@@ -107,7 +107,7 @@ GetTransmission <- function(image, atmosphere = NULL, omega = 0.95,
 #' @importFrom imager width height spectrum
 #' @export
 #'
-GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
+GetRadiance <- function(image, transmission = NULL, atmosphere = NULL,
                       omega = 0.95, winSize = 15) {
   if (is.null(atmosphere)) atmosphere <- GetAtmosphere(image, winSize = winSize)
   if (is.null(transmission)) {
@@ -124,7 +124,7 @@ GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
     # adding a fourth dimention to have a 4 dimentional matrix as normal color
     # images are (3 colors plus 1 frame)
     temp <- array(toFill[k], dim = c(n, m, 1))
-    repAtmosphere <- abind(repAtmosphere,temp,along = 4)
+    repAtmosphere <- abind(repAtmosphere, temp, along = 4)
   }
   repAtmosphere <- unname(repAtmosphere)
   maxValues <- pmax(transmission, 0.1)
@@ -132,9 +132,9 @@ GetRadiance<-function(image, transmission = NULL, atmosphere = NULL,
     # adding a fourth dimention to have a 4 dimentional matrix as normal color
     # images are (3 colors plus 1 frame)
     temp <- array(maxValues, dim = c(n, m, 1))
-    maxTransmission<-abind(maxTransmission, temp, along = 4)
+    maxTransmission <- abind(maxTransmission, temp, along = 4)
   }
-  maxTransmission<-unname(maxTransmission)
+  maxTransmission <- unname(maxTransmission)
   radiance <- (as.array(image) - repAtmosphere) / maxTransmission +
     repAtmosphere
   radiance <- unname(radiance)

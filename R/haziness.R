@@ -34,7 +34,7 @@ TransmissionChangepoint <- function(transmission) {
 #' @param transmission The horizontally averaged transmission
 #' @export
 TransmissionSmoothness <- function(transmission) {
-  sd(diff(transmission, lag=50)) /abs(mean(diff(transmission, lag = 50)))
+  sd(diff(transmission, lag = 50)) / abs(mean(diff(transmission, lag = 50)))
 }
 
 #' Fractal dimension of numeric vector or cimg
@@ -47,9 +47,9 @@ GetFractalDim <- function(x) {
     x <- as.matrix(grayscale(x))
   }
   if (inherits(x, "matrix")) {
-    return(fd.estimate(x)$fd[1,1,1])
+    return(fd.estimate(x)$fd[1, 1, 1])
   } else if (inherits(x, "numeric")) {
-    return(fd.estimate(x)$fd[1,1])
+    return(fd.estimate(x)$fd[1, 1])
   } else {
     stop(paste("GetFractalDim not defined for object of class", class(x)[1]))
   }
