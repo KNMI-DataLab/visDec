@@ -31,9 +31,9 @@ SynchronizeSensorPicture <- function(sensorDataDT, imageInfoDT){
   setkey(imageInfoDT, dateTimeFW4)
   setkey(sensorDataDT, dateTime)
   imageInfoDT[, dateTimeOrig := dateTime]
-  imageAndSensorFW4 <- sensorDataDT[imageInfoDT, roll="nearest"]
+  imageAndSensorFW4 <- sensorDataDT[imageInfoDT, roll = "nearest"]
   setkey(imageInfoDT, dateTimeRW4)
-  imageAndSensorRW4 <- sensorDataDT[imageInfoDT, roll="nearest"]
+  imageAndSensorRW4 <- sensorDataDT[imageInfoDT, roll = "nearest"]
   setnames(imageAndSensorRW4, "TOA.MOR_10", "TOA.MOR_10_RW")
   setnames(imageAndSensorFW4, "TOA.MOR_10", "TOA.MOR_10_FW")
   setkey(imageAndSensorRW4, dateTimeOrig)

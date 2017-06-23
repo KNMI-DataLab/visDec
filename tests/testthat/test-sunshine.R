@@ -6,7 +6,7 @@ context("sunshine")
 #library(iterators)
 library(visDec)
 
-properties <- fread(system.file("extdata/properties.csv", package="visDec"))
+properties <- fread(system.file("extdata/properties.csv", package = "visDec"))
 
 files <- c("./Input/Meetterrein_20151009_0000.jpg", # midnight
            "./Input/Meetterrein_20151009_0610.jpg", # pre sunrise
@@ -19,7 +19,7 @@ files <- c("./Input/Meetterrein_20151009_0000.jpg", # midnight
 test_that("check day", {
 
   fileInfo <- data.table::rbindlist(lapply(files, FileNameParser,
-                                           pattern="na*me_yyyymmdd_hhmm.jpg"))
+                                           pattern = "na*me_yyyymmdd_hhmm.jpg"))
 
   fileInfo2 <- merge(fileInfo, properties,
                      by.x = "filePrefix", by.y = "filePrefix")
@@ -36,7 +36,7 @@ test_that("check day", {
 
 test_that("check time window", {
   fileInfo <- data.table::rbindlist(lapply(files, FileNameParser,
-                                           pattern="na*me_yyyymmdd_hhmm.jpg"))
+                                           pattern = "na*me_yyyymmdd_hhmm.jpg"))
   tmp2 <- WindowFilterDayLightHours(fileInfo, properties, 120, 60, 60, 60)
   #for the day and location the sunrise is at 05:53:02 UTC
   #for the day the and location sunset is at 16:59:18 UTC

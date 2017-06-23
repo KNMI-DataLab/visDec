@@ -9,4 +9,3 @@
 #' @importFrom fractaldim fd.estimate
 #' @importFrom maptools sunriset
 NULL
-

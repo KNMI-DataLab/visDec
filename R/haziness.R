@@ -8,12 +8,17 @@
 # #' @importFrom imager pad extract_patches width height channels as.cimg
 GetHorizAvgTrans <- function(image, winSize = 15, omega = 0.95,
                              lambda = 0.001) {
-  darkChannel  <- GetDarkChannel(image, winSize)
-  atmosphere   <- GetAtmosphere(image, darkChannel)
-  transmission <- GetTransmission(image, atmosphere, omega, winSize)
+  transmission <- GetTransmission(image, omega = omega, winSize = winSize)
   # the following transpose is done given the representation of
   # imager that invert height and width in the matrix representation
-  rowMeans(t(as.matrix(transmission)))
+  HorizontalAverageTransmission(transmission)
+}
+
+#' Obtains horizontal average from transmission
+#' @param x the transmission
+#' @export
+HorizontalAverageTransmission <- function(x) {
+  rowMeans(t(as.matrix(x)))
 }
 
 #' Obtains change point of transmission
@@ -29,7 +34,7 @@ TransmissionChangepoint <- function(transmission) {
 #' @param transmission The horizontally averaged transmission
 #' @export
 TransmissionSmoothness <- function(transmission) {
-  sd(diff(transmission, lag=50)) /abs(mean(diff(transmission, lag = 50)))
+  sd(diff(transmission, lag = 50)) / abs(mean(diff(transmission, lag = 50)))
 }
 
 #' Fractal dimension of numeric vector or cimg
@@ -42,9 +47,9 @@ GetFractalDim <- function(x) {
     x <- as.matrix(grayscale(x))
   }
   if (inherits(x, "matrix")) {
-    return(fd.estimate(x)$fd[1,1,1])
+    return(fd.estimate(x)$fd[1, 1, 1])
   } else if (inherits(x, "numeric")) {
-    return(fd.estimate(x)$fd[1,1])
+    return(fd.estimate(x)$fd[1, 1])
   } else {
     stop(paste("GetFractalDim not defined for object of class", class(x)[1]))
   }
